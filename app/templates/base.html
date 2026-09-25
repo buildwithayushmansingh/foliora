@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site.name }}: portfolio websites without the code{% endblock %}</title>
+  <meta name="description" content="Choose a professional portfolio design, add your details, and launch your portfolio website. No coding needed.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  {% include "partials/nav.html" %}
+  <main id="main">{% block content %}{% endblock %}</main>
+  {% include "partials/footer.html" %}
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</body>
+</html>

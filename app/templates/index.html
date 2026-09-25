@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="wrap hero__in">
+    <div class="hero__copy">
+      <h1>Your portfolio. Your identity. Ready to launch.</h1>
+      <p class="lead">Pick a professional design, add your details, and get a portfolio website you can share. No coding, no hosting setup, no design work.</p>
+      <div class="actions">
+        <a class="btn" href="#featured">See a live portfolio</a>
+        <a class="btn btn--ghost" href="#how-it-works">How it works</a>
+      </div>
+    </div>
+    <div class="hero__visual" aria-hidden="true">
+      <div class="mock">
+        <div class="mock__bar"><i></i><i></i><i></i><span>yourname.{{ site.name|lower }}.com</span></div>
+        <div class="mock__body">
+          <div class="mock__avatar"></div>
+          <div class="mock__name">Your name</div>
+          <div class="mock__role">Full-stack developer</div>
+          <div class="chips">
+            <span style="--i:0">Python</span><span style="--i:1">Flask</span><span style="--i:2">JavaScript</span><span style="--i:3">MySQL</span><span style="--i:4">Tailwind</span>
+          </div>
+          <div class="mock__grid"><b></b><b></b><b></b></div>
+        </div>
+      </div>
+      <div class="form-chip"><small>Your details</small><strong>Skills, projects, links</strong></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="wrap">
+    <h2>A good portfolio shouldn't need a second career in web development</h2>
+    <p class="section__lead">Students, developers, freelancers and job seekers all need one. Most get stuck on the same four things.</p>
+    <dl class="problems">
+      {% for title, text in problems %}
+      <div><dt>{{ title }}</dt><dd>{{ text }}</dd></div>
+      {% endfor %}
+    </dl>
+    <p class="solve">{{ site.name }} takes care of the build and the launch, so you only bring your story.</p>
+  </div>
+</section>
+
+<section class="section section--tint" id="how-it-works">
+  <div class="wrap">
+    <h2>From blank page to live portfolio in four steps</h2>
+    <p class="section__lead">This is how the platform will work once designs open up.</p>
+    <ol class="steps">
+      {% for title, text in steps %}
+      <li><span class="steps__n">{{ loop.index }}</span><h3>{{ title }}</h3><p>{{ text }}</p></li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="section" id="featured">
+  <div class="wrap">
+    <h2>See what your portfolio could look like</h2>
+    <p class="section__lead">The first portfolio on the platform. It's a real, separate website, shown here as an example of what you'll be able to launch.</p>
+    <div class="showcase">
+      <div>
+      <div class="thumb">
+        <div class="thumb__screen">
+          <img
+            src="{{ url_for('static', filename='img/portfolio-preview.png') }}"
+            alt="Preview of {{ featured.owner }}'s portfolio">
+        </div>
+
+        {% if featured.url %}
+        {% endif %}
+      </div>
+        {% if featured.url %}
+        <div class="actions actions--tight">
+          <button class="btn" type="button" data-open="desktop">Preview on desktop</button>
+          <button class="btn btn--ghost" type="button" data-open="mobile">Preview on mobile</button>
+          <a class="btn btn--ghost" href="{{ featured.url }}" target="_blank" rel="noopener">Open in new tab</a>
+        </div>
+        {% endif %}
+      </div>
+      <aside class="meta">
+        <p class="meta__type">{{ featured.type }}</p>
+        <p class="meta__by">{{ featured.owner }}, {{ featured.role }}</p>
+        <p>{{ featured.description }}</p>
+        <dl class="stats">{% for n, label in featured.stats %}<div><dt>{{ label }}</dt><dd>{{ n }}</dd></div>{% endfor %}</dl>
+        <h3>Built with</h3>
+        <ul class="tags">{% for t in featured.tech %}<li>{{ t }}</li>{% endfor %}</ul>
+      </aside>
+    </div>
+
+    <div class="inside">
+      <div>
+        <h3>Sections included</h3>
+        <ul class="list">{% for name, text in featured.sections %}<li><strong>{{ name }}</strong><span>{{ text }}</span></li>{% endfor %}</ul>
+      </div>
+      <div>
+        <h3>Interactive features</h3>
+        <ul class="ticks">{% for f in featured.features %}<li>{{ f }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+  </div>
+</section>
+{% if featured.url %}
+<dialog class="viewer" id="viewer" aria-label="{{ featured.owner }}'s portfolio preview" data-url="{{ featured.url }}">
+  <div class="viewer__bar">
+    <span class="viewer__title">{{ featured.owner }}'s portfolio</span>
+    <div class="seg" role="group" aria-label="Preview size">
+      <button type="button" data-mode="desktop" aria-pressed="true">Desktop</button>
+      <button type="button" data-mode="mobile" aria-pressed="false">Mobile</button>
+    </div>
+    <a class="btn btn--sm btn--light" href="{{ featured.url }}" target="_blank" rel="noopener">Open in new tab</a>
+    <button class="viewer__close" type="button" data-close>Close</button>
+  </div>
+  <div class="viewer__stage" data-mode="desktop">
+    <div class="device"><iframe title="{{ featured.owner }}'s portfolio" referrerpolicy="no-referrer"></iframe></div>
+  </div>
+</dialog>
+{% endif %}
+
+<section class="section section--tint" id="coming-soon">
+  <div class="wrap">
+    <h2>More designs are on the way</h2>
+    <p class="section__lead">The marketplace opens in the next phase. Here's what's being designed.</p>
+    <div class="soon">
+      {% for name, text in upcoming %}
+      <div class="soon__item"><h3>{{ name }}</h3><p>{{ text }}</p><span>Coming soon</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="wrap contact">
+    <h2>Want to know when designs open?</h2>
+    <p class="section__lead">Questions, feedback or ideas are welcome.</p>
+    <a class="btn" href="mailto:{{ site.email }}">Email {{ site.name }}</a>
+  </div>
+</section>
+
+{% endblock %}
