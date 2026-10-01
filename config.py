@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,7 +14,8 @@ class Config:
     PORTFOLIO_TITLE = os.getenv("PORTFOLIO_TITLE", "Developer Portfolio")
     GITHUB_URL = os.getenv("GITHUB_URL") or "#"
     LINKEDIN_URL = os.getenv("LINKEDIN_URL") or "#"
-
+    MAX_CONTENT_LENGTH = 20 * 1024 * 1024  # 20 MB
+    PERMANENT_SESSION_LIFETIME = timedelta(days=365)
 
 class DevConfig(Config):
     DEBUG = True

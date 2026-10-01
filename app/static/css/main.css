@@ -700,16 +700,19 @@ code {
   height: 100%;
   border: 0;
   display: block;
-  background: #fff
+  background: #000000
 }
 
 .viewer__stage[data-mode=mobile] .device {
-  width: 390px;
+  width: 402px;
   max-width: 100%;
-  height: min(844px, 100%);
-  border: 10px solid #000;
-  border-radius: 40px;
-  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .7)
+  height: min(874px, 100%);
+  border: 10px solid #000000;
+  border-radius: 62px;
+}
+
+.viewer__stage[data-mode=mobile] .device:hover {
+  box-shadow: 0 70px 190px -10px rgba(109, 109, 109, 0.7)
 }
 
 .viewer__stage[data-mode=mobile] .device iframe {
@@ -1039,4 +1042,285 @@ button.btn--ghost {
 button.btn--ghost:hover {
   background: var(--ink);
   color: #fff
+}
+
+/* ---------- AI-Tech builder form (Step 1: home page fields) ---------- */
+.build-wrap {
+  max-width: 640px
+}
+
+.build-eyebrow {
+  display: inline-block;
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: .8rem
+}
+
+.build-h1 {
+  font-size: clamp(2rem, 4.4vw, 2.8rem)
+}
+
+.build-form {
+  margin-top: 2.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  font-weight: 600;
+  font-size: .95rem
+}
+
+.field small {
+  font-weight: 400;
+  color: var(--muted)
+}
+
+.field input {
+  font: 400 1rem var(--body);
+  padding: .8rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink)
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46, 75, 255, .15)
+}
+
+.build-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  margin-top: .6rem
+}
+
+.build-error {
+  background: #FEECEC;
+  color: #B42318;
+  border: 1px solid #F3C4C4;
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  font-weight: 600;
+  font-size: .95rem
+}
+
+.build-cta {
+  margin-top: 1.4rem
+}
+
+.build-note {
+  background: var(--tint);
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  font-size: .95rem;
+  margin-top: 1rem;
+}
+
+.build-note a {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* ---------- AI-Tech builder — full multi-section form ---------- */
+.build-wrap {
+  max-width: 760px
+}
+
+.build-group {
+  border-top: 1px solid var(--line);
+  padding-top: 2rem;
+  margin-top: .6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem
+}
+
+.build-group:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0
+}
+
+.build-h2 {
+  font-size: 1.3rem
+}
+
+.build-h2 small {
+  font-weight: 400;
+  font-size: .85rem;
+  color: var(--muted)
+}
+
+.build-hint {
+  font-size: .85rem;
+  color: var(--muted)
+}
+
+.field textarea {
+  font: 400 1rem var(--body);
+  padding: .8rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink);
+  resize: vertical
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46, 75, 255, .15)
+}
+
+.photo-current {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  margin-bottom: .6rem
+}
+
+.photo-current img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line)
+}
+
+.photo-current--sm img {
+  width: 72px;
+  height: 50px;
+  border-radius: 8px
+}
+
+.photo-remove {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--muted)
+}
+
+.repeat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem
+}
+
+.repeat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: .6rem;
+  align-items: center
+}
+
+.repeat-rows--card {
+  gap: 1rem
+}
+
+.repeat-card {
+  position: relative;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 1.2rem;
+  padding-top: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  background: var(--tint)
+}
+
+.repeat-card input,
+.repeat-card textarea {
+  font: 400 .95rem var(--body);
+  padding: .65rem .9rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+  width: 100%
+}
+
+.repeat-card textarea {
+  resize: vertical
+}
+
+.repeat-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem
+}
+
+.row-remove {
+  border: 0;
+  background: var(--line);
+  color: var(--ink);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: .8rem;
+  line-height: 1
+}
+
+.repeat-row .row-remove {
+  justify-self: start
+}
+
+.repeat-card .row-remove {
+  position: absolute;
+  top: .7rem;
+  right: .7rem
+}
+
+.repeat-card .row-remove:hover,
+.repeat-row .row-remove:hover {
+  background: #F3C4C4
+}
+
+.build-social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.2rem
+}
+
+.build-actions--sticky {
+  position: sticky;
+  bottom: 0;
+  background: var(--paper);
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  margin-top: .4rem
+}
+
+template {
+  display: none
+}
+
+@media (max-width:640px) {
+  .repeat-row {
+    grid-template-columns: 1fr;
+    gap: .5rem
+  }
+
+  .repeat-row .row-remove {
+    justify-self: end
+  }
+
+  .repeat-card-grid,
+  .build-social-grid {
+    grid-template-columns: 1fr
+  }
 }

@@ -1,0 +1,259 @@
+{
+    "name": "Ayushman Singh",
+    "username": "ayushman",
+    "profile_image": "img/demo/ayushman/profile.jpg",
+    "title": "Full Stack Web Developer",
+    "tagline": "Turning ideas into clean, functional and engaging web experiences.",
+    "about": "I'm Ayushman Singh, a second-year B.Tech Computer Science student at Greater Noida Institute of Technology (GNIOT), specializing in full stack development. I work with HTML, CSS, JavaScript, Python, C, Flask, MySQL and SQLite to build practical, user-focused web applications. I'm passionate about learning new technologies, building real-world projects, and exploring AI-powered solutions. I'm actively seeking internship opportunities where I can learn, contribute, and grow as a software engineer while gaining hands-on development experience.",
+    "location": "Greater Noida, Uttar Pradesh, India",
+    "email": "ayushmansinghrajput3019@gmail.com",
+    "phone": "",
+    "status": "Open to opportunities",
+    "stats": [
+        {
+            "value": "2nd",
+            "counter": false,
+            "label": "Year, B.Tech CS",
+            "link": "about"
+        },
+        {
+            "value": "10",
+            "counter": true,
+            "plus": true,
+            "label": "Technologies & tools",
+            "link": "skills"
+        },
+        {
+            "value": "4",
+            "counter": true,
+            "plus": false,
+            "label": "Projects built",
+            "link": "projects"
+        },
+        {
+            "value": "4",
+            "counter": true,
+            "plus": false,
+            "label": "Certifications earned",
+            "link": "certificates"
+        }
+    ],
+    "focus": [
+        {
+            "key": "Currently studying",
+            "value": "B.Tech CS, GNIOT"
+        },
+        {
+            "key": "Year",
+            "value": "2nd year"
+        },
+        {
+            "key": "Primary focus",
+            "value": "Full stack development"
+        },
+        {
+            "key": "Exploring",
+            "value": "Generative AI"
+        },
+        {
+            "key": "Based in",
+            "value": "Greater Noida, India"
+        }
+    ],
+    "social_links": {
+        "github": "https://github.com/buildwithayushmansingh",
+        "linkedin": "https://www.linkedin.com/in/ayushman-singh-147434367/",
+        "twitter": "",
+        "instagram": "https://www.instagram.com/ayushmansinghrajput3010/",
+        "website": ""
+    },
+    "skills": [
+        {
+            "category": "Frontend development",
+            "code": "01 // CLIENT",
+            "items": [
+                "HTML",
+                "CSS",
+                "JavaScript",
+                "Responsive UI"
+            ]
+        },
+        {
+            "category": "Backend development",
+            "code": "02 // SERVER",
+            "items": [
+                "Python",
+                "Flask",
+                "REST APIs"
+            ]
+        },
+        {
+            "category": "Database",
+            "code": "03 // STORAGE",
+            "items": [
+                "MySQL",
+                "SQLite"
+            ]
+        },
+        {
+            "category": "AI & data",
+            "code": "04 // MODEL",
+            "items": [
+                "Generative AI",
+                "Data analysis",
+                "AI-powered applications"
+            ]
+        },
+        {
+            "category": "Development tools",
+            "code": "05 // TOOLCHAIN",
+            "items": [
+                "Git",
+                "GitHub",
+                "VS Code",
+                "Render"
+            ]
+        },
+        {
+            "category": "UI/UX & interactive web",
+            "code": "06 // INTERFACE",
+            "items": [
+                "Modern interfaces",
+                "Animations",
+                "Dashboards",
+                "Interactive web experiences"
+            ]
+        }
+    ],
+    "projects": [
+        {
+            "id": "wattwise",
+            "name": "WattWise",
+            "icon": "\u26a1",
+            "description": "AI-based energy optimization platform that analyzes usage and surfaces insights for cutting unnecessary consumption.",
+            "technologies": [
+                "Python",
+                "Flask",
+                "SQLite",
+                "Chart.js"
+            ],
+            "github_url": "https://github.com/buildwithayushmansingh",
+            "live_url": ""
+        },
+        {
+            "id": "private-photo-vault",
+            "name": "Private Photo Vault",
+            "icon": "\ud83d\udd10",
+            "description": "Secure photo storage and authentication web application with upload, delete and image-preview functionality.",
+            "technologies": [
+                "Python",
+                "Flask",
+                "SQLite",
+                "HTML",
+                "CSS",
+                "JavaScript"
+            ],
+            "github_url": "https://github.com/buildwithayushmansingh/private-photo-vault",
+            "live_url": ""
+        },
+        {
+            "id": "genai-project",
+            "name": "GenAI Project",
+            "icon": "\ud83e\udd16",
+            "description": "Exploring practical Generative AI use, built to test how far intelligent, useful applications can go with the tech.",
+            "technologies": [
+                "Python",
+                "Generative AI"
+            ],
+            "github_url": "https://github.com/buildwithayushmansingh/genai-project",
+            "live_url": ""
+        },
+        {
+            "id": "personal-portfolio",
+            "name": "Personal Portfolio",
+            "icon": "\ud83c\udf10",
+            "description": "Modern, interactive developer portfolio showcasing skills, projects, certifications and experience.",
+            "technologies": [
+                "HTML",
+                "CSS",
+                "JavaScript",
+                "Python",
+                "Flask"
+            ],
+            "github_url": "",
+            "live_url": ""
+        }
+    ],
+    "education": [
+        {
+            "degree": "B.Tech, Computer Science Engineering",
+            "institution": "Greater Noida Institute of Technology (GNIOT)",
+            "year": "2nd year, in progress",
+            "description": ""
+        }
+    ],
+    "experience": [],
+    "certificates": [
+        {
+            "name": "Gold Certificate \u2014 Exploratory Data Analysis",
+            "issuer": "FutureSkills Prime \u00d7 NASSCOM",
+            "date": "",
+            "detail": "Successfully cleared the Exploratory Data Analysis assessment in the Gold category with a score of 70% and above.",
+            "tags": [
+                "Python",
+                "Data Analysis",
+                "Visualization"
+            ],
+            "image": "img/demo/ayushman/certificates/gold-certificate.png",
+            "url": ""
+        },
+        {
+            "name": "Exploratory Data Analysis \u2014 Course Participation",
+            "issuer": "FutureSkills Prime \u00d7 NASSCOM",
+            "date": "",
+            "detail": "Completed a comprehensive course on Exploratory Data Analysis, covering data analysis, visualization and practical applications.",
+            "tags": [
+                "Python",
+                "Data Analysis",
+                "Visualization"
+            ],
+            "image": "img/demo/ayushman/certificates/course-completion-certificate.png",
+            "url": ""
+        },
+        {
+            "name": "Introduction to Generative AI",
+            "issuer": "Google Cloud, via Simplilearn SkillUp",
+            "date": "",
+            "detail": "Completed the Introduction to Generative AI course, building a foundational understanding of generative models and their applications.",
+            "tags": [
+                "Generative AI",
+                "Machine Learning"
+            ],
+            "image": "img/demo/ayushman/certificates/google-certificate.png",
+            "url": ""
+        },
+        {
+            "name": "NEXUS AI Quiz Ignite 2026",
+            "issuer": "Unstop",
+            "date": "",
+            "detail": "Participated in the NEXUS AI Quiz Ignite 2026, sharpening my knowledge of Artificial Intelligence concepts.",
+            "tags": [
+                "AI",
+                "Problem Solving"
+            ],
+            "image": "img/demo/ayushman/certificates/nexus-participation.jpg",
+            "url": ""
+        }
+    ],
+    "achievements": [],
+    "github": {
+        "username": "buildwithayushmansingh",
+        "profile_url": "https://github.com/buildwithayushmansingh",
+        "activity_enabled": true
+    },
+    "resume_url": "",
+    "contact": {
+        "email": "ayushmansinghrajput3019@gmail.com",
+        "message_enabled": true
+    }
+}

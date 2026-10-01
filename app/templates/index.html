@@ -85,6 +85,9 @@
         <dl class="stats">{% for n, label in featured.stats %}<div><dt>{{ label }}</dt><dd>{{ n }}</dd></div>{% endfor %}</dl>
         <h3>Built with</h3>
         <ul class="tags">{% for t in featured.tech %}<li>{{ t }}</li>{% endfor %}</ul>
+      <a class="btn build-cta" href="{{ url_for('main.ai_tech_build', fresh=1) }}">
+          Build yours with this template →
+      </a>
       </aside>
     </div>
 

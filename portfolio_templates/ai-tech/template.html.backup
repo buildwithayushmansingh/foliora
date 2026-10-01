@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ portfolio.name }} — {{ portfolio.title }}</title>
+    <meta name="description"
+        content="{{ portfolio.name }} is a {{ portfolio.title|lower }}{% if portfolio.location %} based in {{ portfolio.location }}{% endif %}." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('main.template_asset', template_key='ai-tech', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- code boot / system initialization screen — plays once per browser tab session -->
+    <div id="bootScreen" class="boot-screen" aria-hidden="true">
+        <div class="boot-scanlines"></div>
+        <div class="boot-panel">
+            <div class="boot-panel-titlebar">
+                <span class="boot-dot red"></span><span class="boot-dot yellow"></span><span
+                    class="boot-dot green"></span>
+                <span class="boot-panel-title">PORTFOLIO BOOT SEQUENCE</span>
+            </div>
+            <div class="boot-lines" id="bootLines"></div>
+            <div class="boot-footer">
+                <div class="boot-progress-track">
+                    <div class="boot-progress-fill" id="bootProgressFill"></div>
+                </div>
+                <span class="boot-progress-pct" id="bootProgressPct">0%</span>
+            </div>
+        </div>
+        <button type="button" class="boot-skip" id="bootSkip">Skip intro →</button>
+    </div>
+    <script>
+        (function () {
+            if (sessionStorage.getItem('bootPlayed') === 'true') {
+                document.getElementById('bootScreen').classList.add('boot-skip-instant');
+            } else {
+                sessionStorage.setItem('bootPlayed', 'true');
+            }
+        })();
+    </script>
+
+    <!-- site-wide cinematic background: fixed, visible behind every section -->
+    <div class="site-bg-layer" aria-hidden="true">
+        <span class="site-bg-name n1">{{ portfolio.name|upper }}</span>
+        <span class="site-bg-name n2">{{ portfolio.title|upper }}</span>
+
+        <pre class="site-bg-code">const developer = {
+  name: "{{ portfolio.name }}",
+  skills: [{% for s in bg_tags[:4] %}"{{ s }}"{% if not loop.last %},{% endif %}{% endfor %}],
+  status: "building"
+};</pre>
+
+        <div class="site-bg-stack">
+            {% for s in bg_tags[:6] %}<span>{{ s }}</span>{% endfor %}
+        </div>
+
+        <span class="site-bg-tag st1">&lt;/&gt;</span>
+        <span class="site-bg-tag st2">{ }</span>
+        <span class="site-bg-tag st3">SQL</span>
+        <span class="site-bg-tag st4">GITHUB</span>
+        <span class="site-bg-hud st5">01 // FRONTEND</span>
+        <span class="site-bg-hud st6">02 // BACKEND</span>
+        <span class="site-bg-hud st7">SYSTEM_ONLINE</span>
+
+        <span class="site-bg-particle sp1"></span>
+        <span class="site-bg-particle sp2"></span>
+        <span class="site-bg-particle sp3"></span>
+        <span class="site-bg-particle sp4"></span>
+
+        <div class="site-bg-scanbeam"></div>
+    </div>
+
+    <!-- custom cursor (desktop only, see script.js) -->
+    <div class="cursor" id="cursor">
+        <span class="cursor-crosshair"></span>
+        <span class="cursor-bracket tl"></span>
+        <span class="cursor-bracket tr"></span>
+        <span class="cursor-bracket bl"></span>
+        <span class="cursor-bracket br"></span>
+        <span class="cursor-label" id="cursorLabel"></span>
+    </div>
+
+    <!-- terminal overlay — opens with Ctrl+K / Cmd+K, or the ⌘K button in the top bar -->
+    <div class="term-overlay" id="termOverlay" role="dialog" aria-modal="true" aria-label="Command terminal" hidden>
+        <div class="term-window">
+            <div class="term-titlebar">
+                <span class="term-dot red"></span><span class="term-dot yellow"></span><span
+                    class="term-dot green"></span>
+                <span class="term-title">{{ portfolio.username|default('dev', true) }}@portfolio — bash</span>
+                <span class="term-esc">ESC</span>
+            </div>
+            <div class="term-body" id="termBody">
+                <div class="term-line">Welcome. Type <span class="term-cmd-hint">help</span> to get started.</div>
+            </div>
+            <div class="term-input-row">
+                <span class="term-prompt">{{ portfolio.username|default('dev', true) }}@dev:~$</span>
+                <input type="text" id="termInput" class="term-input" autocomplete="off" spellcheck="false"
+                    aria-label="Terminal command input">
+            </div>
+        </div>
+    </div>
+
+    <!-- sections menu — opens with the grid icon in the top bar; anchors to sections on this page -->
+    <div class="sections-overlay" id="sectionsOverlay" hidden>
+        <div class="sections-panel">
+            <div class="sections-panel-head">
+                <span>Sections</span>
+                <button class="sections-close" id="sectionsClose" aria-label="Close sections menu">✕</button>
+            </div>
+            <ul class="sections-list">
+                <li><a href="#top" data-cursor-text="Open"><span>Home</span><span class="sections-arrow">→</span></a>
+                </li>
+                {% for slug, label in available_sections %}
+                <li><a href="#{{ slug }}" data-cursor-text="Open"><span>{{ label }}</span><span
+                            class="sections-arrow">→</span></a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <header class="top-bar">
+        <div class="nav-mark"><a href="#top" data-cursor-text="Home"><span class="dot"></span>{{ portfolio.name }}</a>
+        </div>
+        <div class="nav-right">
+            <button class="sections-trigger" id="sectionsTrigger" data-cursor-text="Sections"
+                aria-label="Open sections menu" aria-haspopup="true" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+            </button>
+            <div class="profile-menu" id="profileMenu">
+                <button class="profile-avatar" id="profileAvatarBtn" aria-haspopup="true" aria-expanded="false"
+                    aria-label="Open profile menu">{{ initials }}</button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-section">
+                        <details class="theme-select" id="themeSelect">
+                            <summary><span class="profile-section-label">Theme</span><span class="theme-current"
+                                    id="currentThemeLabel">Dark</span></summary>
+                            <div class="theme-options">
+                                <button type="button" class="theme-swatch" data-theme="cinematic"
+                                    aria-label="Dark theme">
+                                    <span class="swatch-dot swatch-cinematic"></span>Dark
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="light" aria-label="Light theme">
+                                    <span class="swatch-dot swatch-light"></span>Light
+                                </button>
+                                <button type="button" class="theme-swatch" data-theme="terminal"
+                                    aria-label="Terminal theme">
+                                    <span class="swatch-dot swatch-terminal"></span>Terminal
+                                </button>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="profile-section">
+                        <span class="profile-section-label">Sound</span>
+                        <div class="sound-row">
+                            <button class="sound-toggle" id="soundToggle" aria-pressed="false"
+                                aria-label="Toggle interface sound">
+                                <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 9v6h4l5 4V5L8 9H4z" />
+                                    <path d="M16.5 8.5a5 5 0 0 1 0 7" />
+                                    <path d="M19 6a9 9 0 0 1 0 12" />
+                                </svg>
+                                <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 9v6h4l5 4V5L8 9H4z" />
+                                    <line x1="17" y1="9" x2="22" y2="14" />
+                                    <line x1="22" y1="9" x2="17" y2="14" />
+                                </svg>
+                            </button>
+                            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="60"
+                                aria-label="Volume">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="cmdk-trigger" id="cmdkTrigger" data-cursor-text="Terminal" aria-label="Open terminal">
+                <span>⌘K</span>
+            </button>
+            {% if portfolio.email %}
+            <a href="mailto:{{ portfolio.email }}" class="nav-cta" data-cursor-text="Email">Say hello</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <section class="hero" id="top">
+        <div class="hero-scanlines"></div>
+        <div class="hero-bg-layer" id="heroBgLayer" aria-hidden="true">
+            <span class="bg-type t1">BUILD</span>
+            <span class="bg-type t2">CREATE</span>
+            <span class="bg-type t3">SYSTEM</span>
+
+            <pre class="bg-code c1">const developer = {
+  name: "{{ portfolio.name }}",
+  role: "{{ portfolio.title }}",
+  stack: [{% for s in bg_tags[:4] %}"{{ s }}"{% if not loop.last %},{% endif %}{% endfor %}],
+  learning: true
+};</pre>
+            <span class="bg-line c2">&gt; initializing portfolio...</span>
+            <span class="bg-line c3">&gt; system.ready()</span>
+            <span class="bg-line c4">&gt; developer.mode = "build"</span>
+            <span class="bg-line c5 bg-glitch">&gt; status: ONLINE<i class="bg-cursor">_</i></span>
+
+            {% for tag in bg_tags[:6] %}<span class="bg-tag c{{ loop.index + 5 }}">{{ tag }}</span>{% endfor %}
+
+            <span class="bg-hud c12">CPU // 32%</span>
+            <span class="bg-hud c13">MEM // 68%</span>
+            <span class="bg-hud c14">NET // CONNECTED</span>
+            <span class="bg-hud c15">01 // FRONTEND</span>
+            <span class="bg-hud c16">02 // BACKEND</span>
+            <span class="bg-hud c17">&lt; BUILD &gt;</span>
+            <span class="bg-hud c18">&lt; DEPLOY &gt;</span>
+
+            <span class="bg-label c19">{{ portfolio.name|upper|replace(' ', '.') }}</span>
+            <span class="bg-label c20">PORTFOLIO</span>
+
+            <span class="bg-particle p1"></span>
+            <span class="bg-particle p2"></span>
+            <span class="bg-particle p3"></span>
+            <span class="bg-particle p4"></span>
+            <span class="bg-particle p5"></span>
+            <span class="bg-particle p6"></span>
+
+            <div class="hero-scanbeam"></div>
+        </div>
+        <div class="hero-inner">
+            <div class="hero-content">
+                {% if portfolio.location %}
+                <p class="hero-location reveal" style="animation-delay:0.05s">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                    </svg>
+                    {{ portfolio.location }}
+                </p>
+                {% endif %}
+                <p class="hero-prompt reveal" style="animation-delay:0.08s">&gt;_ Hi, I'm</p>
+                <h1 class="reveal glitch-text" data-text="{{ portfolio.name|upper }}" style="animation-delay:0.12s">{{
+                    portfolio.name|upper }}</h1>
+                <p class="hero-role reveal" style="animation-delay:0.2s">{ {{ portfolio.title }} }</p>
+                {% if portfolio.tagline %}
+                <p class="hero-tagline reveal" style="animation-delay:0.28s">{{ portfolio.tagline }}</p>
+                {% endif %}
+                <div class="hero-actions reveal" style="animation-delay:0.36s">
+                    {% if portfolio.email %}
+                    <a href="mailto:{{ portfolio.email }}?subject=Project%20Inquiry" class="btn btn-primary"
+                        data-cursor-text="Send">Send an email</a>
+                    {% endif %}
+                    {% if portfolio.social_links.github %}
+                    <a href="{{ portfolio.social_links.github }}" target="_blank" rel="noopener" class="btn btn-ghost"
+                        data-cursor-text="Open">View GitHub</a>
+                    {% endif %}
+                </div>
+                {% if portfolio.stats %}
+                <div class="hero-stats reveal" style="animation-delay:0.44s">
+                    {% for stat in portfolio.stats %}
+                    <a href="#{{ stat.link|default('about', true) }}" class="hud-stat" data-cursor-text="Open">
+                        {% if stat.counter %}
+                        <div class="stat-num"><span data-count="{{ stat.value }}">0</span>{% if stat.plus %}<span
+                                class="plus">+</span>{% endif %}</div>
+                        {% else %}
+                        <div class="stat-num">{{ stat.value }}</div>
+                        {% endif %}
+                        <div class="stat-label">{{ stat.label }}</div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="hero-visual reveal" style="animation-delay:0.15s">
+                <div class="hero-orbit" aria-hidden="true">
+                    <span class="hero-ring hr1"></span>
+                    <span class="hero-ring hr2"></span>
+                    <span class="hero-ring hr3"></span>
+                    <span class="hero-node n1"></span>
+                    <span class="hero-node n2"></span>
+                    <span class="hero-node n3"></span>
+                </div>
+                <div class="dev-symbols">
+                    <span>&lt;/&gt;</span><span>{ }</span><span>const</span>{% for s in bg_tags[:6] %}<span>{{ s
+                        }}</span>{% endfor %}
+                </div>
+                <div class="code-fragments">
+                    <span>const developer = {</span>
+                    <span>&nbsp;&nbsp;name: "{{ portfolio.name.split(' ')[0] }}",</span>
+                    <span>&nbsp;&nbsp;stack: "full-stack",</span>
+                    <span>&nbsp;&nbsp;learning: true</span>
+                    <span>};</span>
+                </div>
+                {% if portfolio.profile_image %}
+                <div class="photo-frame">
+                    <img src="{{ url_for('static', filename=portfolio.profile_image) }}"
+                        alt="Portrait of {{ portfolio.name }}" />
+                </div>
+                {% endif %}
+                {% if portfolio.status %}
+                <div class="status-badge"><span class="pulse"></span>{{ portfolio.status }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {% if portfolio.about %}
+    <section id="about">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">About</span>
+                <h2>{{ portfolio.title }}, still early and building fast.</h2>
+            </div>
+            <div class="about-grid reveal-on-scroll">
+                <div class="about-text">
+                    {% for para in portfolio.about.split('\n\n') %}<p>{{ para }}</p>{% endfor %}
+                </div>
+                {% if portfolio.focus %}
+                <div class="focus-panel">
+                    {% for row in portfolio.focus %}
+                    <div class="focus-row"><span class="k">{{ row.key }}</span><span class="v">{{ row.value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if portfolio.skills %}
+    <section id="skills">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">Skills</span>
+                <h2>What I work with</h2>
+                <p>A practical toolkit built around shipping working products, front to back.</p>
+            </div>
+            <div class="circuit-grid reveal-on-scroll">
+                <div class="orbit-core">
+                    <span class="orbit-ring r1"></span>
+                    <span class="orbit-ring r2"></span>
+                    <span class="orbit-ring r3"></span>
+                    <div class="orbit-core-label">
+                        <span class="core-eyebrow">// SYSTEM</span>
+                        <span class="core-title">SKILLS</span>
+                        <span class="core-sub">TECH STACK</span>
+                    </div>
+                </div>
+
+                {% for group in portfolio.skills %}
+                {% set card %}
+                <div class="circuit-card">
+                    <span class="circuit-readout">{{ group.code or ('%02d'|format(loop.index) ~ ' // GROUP') }}</span>
+                    <h3>{{ group.category }}</h3>
+                    <p>{{ group['items']|join(', ') }}.</p>
+                </div>
+                {% endset %}
+                <div class="circuit-row">
+                    {% if loop.index0 is even %}
+                    <div class="circuit-slot"></div>
+                    <div class="circuit-node-wrap"><span class="node-dot"></span></div>
+                    <div class="circuit-slot">{{ card }}</div>
+                    {% else %}
+                    <div class="circuit-slot">{{ card }}</div>
+                    <div class="circuit-node-wrap"><span class="node-dot"></span></div>
+                    <div class="circuit-slot"></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if portfolio.projects %}
+    <section id="projects">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">Projects</span>
+                <h2>A few things I've built</h2>
+            </div>
+
+            <div class="orbit-wrap reveal-on-scroll">
+                <svg class="orbit-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <line class="orbit-line" x1="24" y1="22" x2="50" y2="50" />
+                    <line class="orbit-line" x1="76" y1="22" x2="50" y2="50" />
+                    <line class="orbit-line" x1="24" y1="78" x2="50" y2="50" />
+                    <line class="orbit-line" x1="76" y1="78" x2="50" y2="50" />
+                </svg>
+
+                <div class="orbit-core orbit-core-lg">
+                    <span class="orbit-ring r1"></span>
+                    <span class="orbit-ring r2"></span>
+                    <div class="orbit-core-label">
+                        <span class="core-eyebrow">// MY WORK</span>
+                        <span class="core-title">PROJECTS</span>
+                        <span class="core-sub">Ideas → Code → Impact</span>
+                    </div>
+                </div>
+
+                {% set positions = ['pos-tl', 'pos-tr', 'pos-bl', 'pos-br'] %}
+                {% for project in portfolio.projects[:4] %}
+                <div class="orbit-card {{ positions[loop.index0] }}">
+                    <span class="circuit-readout">{{ '%02d'|format(loop.index) }} // {{ project.name|upper }}</span>
+                    <div class="project-name">{% if project.icon %}<span class="project-icon">{{ project.icon
+                            }}</span>{% endif %}{{ project.name }}</div>
+                    <p class="project-desc">{{ project.description }}</p>
+                    {% if project.technologies %}
+                    <div class="project-tags">
+                        {% for t in project.technologies %}<span class="tag">{{ t }}</span>{% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if project.github_url %}
+                    <a class="project-link" href="{{ project.github_url }}" target="_blank" rel="noopener"
+                        data-cursor-text="View">View on GitHub →</a>
+                    {% elif project.live_url %}
+                    <a class="project-link" href="{{ project.live_url }}" target="_blank" rel="noopener"
+                        data-cursor-text="View">View live →</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if portfolio.certificates %}
+    <section id="certificates">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">Certificates &amp; recognition</span>
+                <h2>Learning, verified</h2>
+            </div>
+
+            {% set first = portfolio.certificates[0] %}
+            <div class="cert-showcase reveal-on-scroll">
+                <div class="cert-featured" id="certFeatured">
+                    <div class="cert-featured-image">
+                        <img id="certFeaturedImg" src="{{ url_for('static', filename=first.image) }}"
+                            alt="{{ first.name }}">
+                        <span class="cert-verified-badge">✓ Verified</span>
+                    </div>
+                    <div class="cert-featured-info">
+                        <span class="cert-eyebrow-small">// Certificate details</span>
+                        <h3 id="certFeaturedTitle">{{ first.name }}</h3>
+                        <p class="cert-featured-issuer" id="certFeaturedIssuer">{{ first.issuer }}</p>
+                        <p class="cert-featured-desc" id="certFeaturedDesc">{{ first.detail or '' }}</p>
+                        <div class="cert-featured-tags" id="certFeaturedTags">
+                            {% for t in first.tags %}<span class="tag">{{ t }}</span>{% endfor %}
+                        </div>
+                        <a class="btn btn-ghost" id="certFeaturedLink"
+                            href="{{ url_for('static', filename=first.image) }}" target="_blank" rel="noopener"
+                            data-cursor-text="View">View Certificate →</a>
+                    </div>
+                </div>
+
+                <div class="cert-thumbs">
+                    <span class="cert-count"><strong>{{ portfolio.certificates|length }}</strong> Certificates</span>
+                    <div class="cert-thumb-row" id="certThumbRow">
+                        {% for c in portfolio.certificates %}
+                        <button type="button" class="cert-thumb{% if loop.first %} active{% endif %}"
+                            data-index="{{ loop.index0 }}" data-title="{{ c.name }}" data-issuer="{{ c.issuer }}"
+                            data-desc="{{ c.detail or '' }}" data-tags="{{ c.tags|join(',') }}"
+                            data-image="{{ url_for('static', filename=c.image) }}">
+                            <img src="{{ url_for('static', filename=c.image) }}" alt="{{ c.name }} thumbnail">
+                            <span>{{ c.name.split(' — ')[0] }}</span>
+                        </button>
+                        {% endfor %}
+                        {% if portfolio.social_links.github %}
+                        {% set gh_handle = portfolio.social_links.github.rstrip('/').split('/')[-1] %}
+                        {% else %}
+                        {% set gh_handle = portfolio.username|default('dev', true) %}
+                        {% endif %}
+                        {% if portfolio.name %}
+                        <section id="id-card">
+                            <div class="wrap">
+                                <div class="section-head reveal-on-scroll">
+                                    <span class="eyebrow">Developer ID</span>
+                                    <h2>Identity card</h2>
+                                </div>
+                                <div class="id-card-stage reveal-on-scroll">
+                                    <div class="id-card">
+                                        <div class="id-card-shine"></div>
+                                        <div class="id-card-header">
+                                            <span>DEVELOPER ID</span>
+                                            {% if portfolio.status %}<span class="id-card-status">● {{ portfolio.status
+                                                }}</span>{% endif %}
+                                        </div>
+                                        {% if portfolio.profile_image %}
+                                        <div class="id-card-avatar"><img
+                                                src="{{ url_for('static', filename=portfolio.profile_image) }}"
+                                                alt="{{ portfolio.name }}"></div>
+                                        {% endif %}
+                                        <div class="id-card-name">{{ portfolio.name }}</div>
+                                        <div class="id-card-handle">@{{ gh_handle }}</div>
+                                        <div class="id-card-title">{{ portfolio.title }}</div>
+                                        {% if portfolio.stats %}
+                                        <div class="id-card-stats">
+                                            {% for stat in portfolio.stats[:4] %}
+                                            <div><span class="k">{{ stat.label }}</span><span class="v">{{ stat.value
+                                                    }}{% if stat.plus %}+{% endif %}</span></div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        {% if portfolio.location %}<div class="id-card-footer"><span>{{
+                                                portfolio.location }}</span></div>{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        {% endif %}
+                        {% if portfolio.github and portfolio.github.activity_enabled and portfolio.github.username %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if portfolio.github and portfolio.github.activity_enabled and portfolio.github.username %}
+    <section id="github" data-gh-username="{{ portfolio.github.username }}">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">GitHub Activity</span>
+                <h2>Building in public</h2>
+                <p>Live data pulled directly from <a href="{{ portfolio.github.profile_url }}" target="_blank"
+                        rel="noopener" data-cursor-text="Open">github.com/{{ portfolio.github.username }}</a>.</p>
+            </div>
+
+            <h3 class="gh-subhead" id="ghContribHeading">Contributions</h3>
+            <div class="gh-card reveal-on-scroll">
+                <div class="gh-scroll">
+                    <div class="gh-months" id="ghMonths"></div>
+                    <div class="gh-heatmap" id="ghHeatmap">
+                        <div class="gh-loading">Loading activity…</div>
+                    </div>
+                </div>
+                <div class="gh-legend">
+                    <span>Less</span>
+                    <span class="gh-cell l0"></span><span class="gh-cell l1"></span><span
+                        class="gh-cell l2"></span><span class="gh-cell l3"></span><span class="gh-cell l4"></span>
+                    <span>More</span>
+                </div>
+            </div>
+            <div class="gh-tooltip" id="ghTooltip" hidden></div>
+
+            <div class="gh-stats reveal-on-scroll">
+                <div class="hud-stat">
+                    <div class="stat-num" id="ghRepos">—</div>
+                    <div class="stat-label">Repositories</div>
+                </div>
+                <div class="hud-stat">
+                    <div class="stat-num">{{ portfolio.projects|length }}</div>
+                    <div class="stat-label">Projects built</div>
+                </div>
+                <div class="hud-stat">
+                    <div class="stat-num" id="ghLangs">—</div>
+                    <div class="stat-label">Technologies</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if portfolio.social_links or portfolio.contact.email %}
+    <section id="contact">
+        <div class="wrap reveal-on-scroll">
+            <div class="contact-container">
+                <h2 class="contact-heading">Let's build something.</h2>
+                <p class="contact-subtitle">Open to internships, freelance work and collaborations. If something here
+                    caught your eye, send a message.</p>
+
+                <div class="contact-social-grid">
+                    {% if portfolio.contact.email or portfolio.email %}
+                    <a href="mailto:{{ portfolio.contact.email or portfolio.email }}?subject=Project%20Inquiry"
+                        class="contact-social-card" data-cursor-text="Send" style="--card-accent:#EA4335">
+                        <span class="contact-social-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 6h16v12H4z" />
+                                <path d="m4 7 8 6 8-6" />
+                            </svg>
+                        </span>
+                        <span class="contact-social-title">Email</span>
+                    </a>
+                    {% endif %}
+
+                    {% if portfolio.social_links.github %}
+                    <a href="{{ portfolio.social_links.github }}" target="_blank" rel="noopener"
+                        class="contact-social-card" data-cursor-text="Open" style="--card-accent:#F5F5F5">
+                        <span class="contact-social-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.4 7.86 10.93.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.52-1.34-1.28-1.7-1.28-1.7-1.04-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.2-3.1-.12-.3-.52-1.5.1-3.1 0 0 .97-.31 3.2 1.19a11 11 0 0 1 5.82 0c2.22-1.5 3.19-1.2 3.19-1.2.63 1.6.23 2.8.11 3.1.75.82 1.2 1.85 1.2 3.1 0 4.44-2.7 5.4-5.27 5.68.42.36.78 1.08.78 2.17v3.22c0 .32.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+                            </svg>
+                        </span>
+                        <span class="contact-social-title">GitHub</span>
+                    </a>
+                    {% endif %}
+
+                    {% if portfolio.social_links.linkedin %}
+                    <a href="{{ portfolio.social_links.linkedin }}" target="_blank" rel="noopener"
+                        class="contact-social-card" data-cursor-text="Open" style="--card-accent:#0A66C2">
+                        <span class="contact-social-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.15 1.46-2.15 2.96V21h-4V9z" />
+                            </svg>
+                        </span>
+                        <span class="contact-social-title">LinkedIn</span>
+                    </a>
+                    {% endif %}
+
+                    {% if portfolio.social_links.instagram %}
+                    <a href="{{ portfolio.social_links.instagram }}" target="_blank" rel="noopener"
+                        class="contact-social-card" data-cursor-text="Open" style="--card-accent:#E1306C">
+                        <span class="contact-social-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="5" />
+                                <circle cx="12" cy="12" r="4" />
+                                <circle cx="17.5" cy="6.5" r="1" />
+                            </svg>
+                        </span>
+                        <span class="contact-social-title">Instagram</span>
+                    </a>
+                    {% endif %}
+
+                    {% if portfolio.social_links.twitter %}
+                    <a href="{{ portfolio.social_links.twitter }}" target="_blank" rel="noopener"
+                        class="contact-social-card" data-cursor-text="Open" style="--card-accent:#1D9BF0">
+                        <span class="contact-social-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M22 5.9c-.7.3-1.5.6-2.3.7.8-.5 1.5-1.3 1.8-2.2-.8.5-1.7.8-2.6 1a4.1 4.1 0 0 0-7 3.7A11.6 11.6 0 0 1 3.4 4.7a4.1 4.1 0 0 0 1.3 5.5c-.7 0-1.3-.2-1.9-.5v.1c0 2 1.4 3.6 3.3 4a4.1 4.1 0 0 1-1.9.1 4.1 4.1 0 0 0 3.8 2.9A8.3 8.3 0 0 1 2 18.4a11.6 11.6 0 0 0 6.3 1.9c7.5 0 11.7-6.3 11.7-11.7v-.5c.8-.6 1.5-1.3 2-2.2z" />
+                            </svg>
+                        </span>
+                        <span class="contact-social-title">Twitter / X</span>
+                    </a>
+                    {% endif %}
+
+                    {% if portfolio.social_links.website %}
+                    <a href="{{ portfolio.social_links.website }}" target="_blank" rel="noopener"
+                        class="contact-social-card" data-cursor-text="Open" style="--card-accent:#2EE6D6">
+                        <span class="contact-social-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M3 12h18M12 3c2.5 2.7 4 6 4 9s-1.5 6.3-4 9c-2.5-2.7-4-6-4-9s1.5-6.3 4-9z" />
+                            </svg>
+                        </span>
+                        <span class="contact-social-title">Website</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <footer>
+        <span>© {{ current_year }} {{ portfolio.name }}</span>
+        {% if portfolio.location %}<span>{{ portfolio.location }}</span>{% endif %}
+    </footer>
+
+    <script>
+        // Portfolio data, safe for client-side use (no secrets) — read by script.js
+        // for the terminal, GitHub widget and other data-driven interactions.
+        window.PORTFOLIO = {{ portfolio | tojson }};
+    </script>
+    <script src="{{ url_for('main.template_asset', template_key='ai-tech', filename='script.js') }}"></script>
+</body>
+
+</html>
