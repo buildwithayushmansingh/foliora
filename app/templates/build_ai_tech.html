@@ -3,46 +3,160 @@
 {% block content %}
 <section class="section build-section">
   <div class="wrap build-wrap">
-    <span class="build-eyebrow">AI & Tech template — Step 1 of several</span>
-    <h1 class="build-h1">Let's start with your home page</h1>
-    <p class="lead">These five fields fill in the hero section — the first thing a visitor sees.Fill in your details and build your own portfolio using this template.</p>
+    <span class="build-eyebrow">AI & Tech template</span>
+    <h1 class="build-h1">Build your portfolio</h1>
+    <p class="lead">Fill in as much or as little as you like — any section you leave empty just won't appear on the portfolio.</p>
 
-{% if showing_demo %}
-<p class="build-note">
-    You're looking at demo content.
-    <a href="{{ url_for('main.ai_tech_build', fresh=1) }}">
-        Start with a blank form instead →
-    </a>
-</p>
-{% endif %}
+    {% if error %}<p class="build-error">{{ error }}</p>{% endif %}
 
-    <form method="post" class="build-form">
-      <label class="field">
-        <span>Full name</span>
-        <input type="text" name="name" required maxlength="80" value="{{ values.name }}" placeholder="e.g. Priya Sharma">
-      </label>
+    {% if showing_demo %}
+    <p class="build-note">You're looking at demo content. <a href="{{ url_for('main.ai_tech_build', fresh=1) }}">Start with a blank form instead →</a></p>
+    {% elif has_custom_data and not current_user %}
+    <p class="build-note">This is only saved to this browser. <a href="{{ url_for('auth.signup') }}">Create a free account</a> to keep it safe and reach it from any device.</p>
+    {% endif %}
 
-      <label class="field">
-        <span>Title / role</span>
-        <input type="text" name="title" required maxlength="80" value="{{ values.title }}" placeholder="e.g. Frontend Developer">
-      </label>
+    <form method="post" class="build-form" enctype="multipart/form-data" id="builderForm">
 
-      <label class="field">
-        <span>Tagline <small>(optional, one line)</small></span>
-        <input type="text" name="tagline" maxlength="140" value="{{ values.tagline }}" placeholder="e.g. Building fast, accessible web apps.">
-      </label>
+      <!-- ============ HOME / HERO ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Home page</h2>
 
-      <label class="field">
-        <span>Location <small>(optional)</small></span>
-        <input type="text" name="location" maxlength="80" value="{{ values.location }}" placeholder="e.g. Bengaluru, India">
-      </label>
+        <label class="field">
+          <span>Full name</span>
+          <input type="text" name="name" required maxlength="80" value="{{ portfolio.name }}" placeholder="e.g. Priya Sharma">
+        </label>
 
-      <label class="field">
-        <span>Status <small>(optional, shown as a small badge)</small></span>
-        <input type="text" name="status" maxlength="60" value="{{ values.status }}" placeholder="e.g. Open to opportunities">
-      </label>
+        <label class="field">
+          <span>Title / role</span>
+          <input type="text" name="title" required maxlength="80" value="{{ portfolio.title }}" placeholder="e.g. Frontend Developer">
+        </label>
 
-      <div class="build-actions">
+        <label class="field">
+          <span>Tagline <small>(optional, one line)</small></span>
+          <input type="text" name="tagline" maxlength="140" value="{{ portfolio.tagline }}" placeholder="e.g. Building fast, accessible web apps.">
+        </label>
+
+        <label class="field">
+          <span>Location <small>(optional)</small></span>
+          <input type="text" name="location" maxlength="80" value="{{ portfolio.location }}" placeholder="e.g. Bengaluru, India">
+        </label>
+
+        <label class="field">
+          <span>Status <small>(optional, shown as a small badge)</small></span>
+          <input type="text" name="status" maxlength="60" value="{{ portfolio.status }}" placeholder="e.g. Open to opportunities">
+        </label>
+
+        <div class="field">
+          <span>Profile photo <small>(optional — JPG, PNG or WEBP, under 5MB)</small></span>
+          {% if portfolio.profile_image %}
+          <div class="photo-current">
+            <img src="{{ url_for('static', filename=portfolio.profile_image) }}" alt="Current profile photo">
+            <label class="photo-remove"><input type="checkbox" name="remove_profile_image" value="1"> Remove photo</label>
+          </div>
+          {% endif %}
+          <input type="file" name="profile_image" accept=".jpg,.jpeg,.png,.webp">
+        </div>
+      </div>
+
+      <!-- ============ ABOUT ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">About</h2>
+        <label class="field">
+          <span>Bio <small>(optional — a short paragraph or two about you)</small></span>
+          <textarea name="about" rows="5" maxlength="1200" placeholder="I'm a developer who enjoys...">{{ portfolio.about }}</textarea>
+        </label>
+      </div>
+
+      <!-- ============ SKILLS ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Skills <small>(optional)</small></h2>
+        <p class="build-hint">Group your skills — e.g. "Frontend development" with "HTML, CSS, JavaScript".</p>
+        <div id="skillsRows" class="repeat-rows">
+          {% for group in portfolio.skills %}
+          <div class="repeat-row" data-row>
+            <input type="text" name="skill_category_{{ loop.index0 }}" maxlength="60" value="{{ group.category }}" placeholder="Category, e.g. Frontend development">
+            <input type="text" name="skill_items_{{ loop.index0 }}" maxlength="200" value="{{ group['items']|join(', ') }}" placeholder="Comma-separated: HTML, CSS, JavaScript">
+            <button type="button" class="row-remove" data-remove-row aria-label="Remove this skill group">✕</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="addSkillRow">+ Add skill group</button>
+      </div>
+
+      <!-- ============ PROJECTS ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Projects <small>(optional)</small></h2>
+        <div id="projectsRows" class="repeat-rows repeat-rows--card">
+          {% for p in portfolio.projects %}
+          <div class="repeat-card" data-row>
+            <button type="button" class="row-remove" data-remove-row aria-label="Remove this project">✕</button>
+            <div class="repeat-card-grid">
+              <input type="text" name="project_name_{{ loop.index0 }}" maxlength="60" value="{{ p.name }}" placeholder="Project name">
+              <input type="text" name="project_icon_{{ loop.index0 }}" maxlength="4" value="{{ p.icon }}" placeholder="Icon (emoji, optional)">
+            </div>
+            <textarea name="project_desc_{{ loop.index0 }}" rows="2" maxlength="300" placeholder="What does it do?">{{ p.description }}</textarea>
+            <input type="text" name="project_tech_{{ loop.index0 }}" maxlength="150" value="{{ p.technologies|join(', ') }}" placeholder="Technologies, comma-separated: Python, Flask">
+            <div class="repeat-card-grid">
+              <input type="url" name="project_github_{{ loop.index0 }}" maxlength="200" value="{{ p.github_url }}" placeholder="GitHub URL (optional)">
+              <input type="url" name="project_live_{{ loop.index0 }}" maxlength="200" value="{{ p.live_url }}" placeholder="Live demo URL (optional)">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="addProjectRow">+ Add project</button>
+      </div>
+
+      <!-- ============ CERTIFICATES ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Certificates <small>(optional)</small></h2>
+        <div id="certsRows" class="repeat-rows repeat-rows--card">
+          {% for c in portfolio.certificates %}
+          <div class="repeat-card" data-row>
+            <button type="button" class="row-remove" data-remove-row aria-label="Remove this certificate">✕</button>
+            <input type="text" name="cert_name_{{ loop.index0 }}" maxlength="100" value="{{ c.name }}" placeholder="Certificate name">
+            <div class="repeat-card-grid">
+              <input type="text" name="cert_issuer_{{ loop.index0 }}" maxlength="100" value="{{ c.issuer }}" placeholder="Issued by">
+              <input type="text" name="cert_tags_{{ loop.index0 }}" maxlength="120" value="{{ c.tags|join(', ') }}" placeholder="Tags, comma-separated">
+            </div>
+            <textarea name="cert_detail_{{ loop.index0 }}" rows="2" maxlength="300" placeholder="Short detail (optional)">{{ c.detail }}</textarea>
+            {% if c.image %}
+            <div class="photo-current photo-current--sm">
+              <img src="{{ url_for('static', filename=c.image) }}" alt="Current certificate image">
+              <input type="hidden" name="cert_existing_{{ loop.index0 }}" value="{{ c.image }}">
+            </div>
+            {% endif %}
+            <input type="file" name="cert_image_{{ loop.index0 }}" accept=".jpg,.jpeg,.png,.webp">
+            <span class="build-hint">{% if c.image %}Choose a new file to replace it, or leave blank to keep the current one.{% else %}An image is required for the certificate to appear.{% endif %}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="addCertRow">+ Add certificate</button>
+      </div>
+
+      <!-- ============ SOCIAL & CONTACT ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Social links &amp; contact <small>(all optional)</small></h2>
+
+        <label class="field">
+          <span>Contact email</span>
+          <input type="email" name="email" maxlength="120" value="{{ portfolio.contact.email or portfolio.email }}" placeholder="you@example.com">
+        </label>
+
+        <label class="field">
+          <span>GitHub username <small>(shows a live activity heatmap)</small></span>
+          <input type="text" name="github_username" maxlength="60" value="{{ portfolio.github.username }}" placeholder="e.g. octocat">
+        </label>
+
+        <div class="build-social-grid">
+          <label class="field"><span>GitHub URL</span><input type="url" name="social_github" maxlength="200" value="{{ portfolio.social_links.github }}" placeholder="https://github.com/you"></label>
+          <label class="field"><span>LinkedIn URL</span><input type="url" name="social_linkedin" maxlength="200" value="{{ portfolio.social_links.linkedin }}" placeholder="https://linkedin.com/in/you"></label>
+          <label class="field"><span>Twitter / X URL</span><input type="url" name="social_twitter" maxlength="200" value="{{ portfolio.social_links.twitter }}" placeholder="https://x.com/you"></label>
+          <label class="field"><span>Instagram URL</span><input type="url" name="social_instagram" maxlength="200" value="{{ portfolio.social_links.instagram }}" placeholder="https://instagram.com/you"></label>
+          <label class="field"><span>Website URL</span><input type="url" name="social_website" maxlength="200" value="{{ portfolio.social_links.website }}" placeholder="https://you.dev"></label>
+        </div>
+      </div>
+
+      <div class="build-actions build-actions--sticky">
         <button type="submit" class="btn">Save and preview →</button>
         {% if has_custom_data %}
         <a href="{{ url_for('main.ai_tech_reset') }}" class="btn btn--ghost">Reset to demo data</a>
@@ -51,4 +165,45 @@
     </form>
   </div>
 </section>
+
+<!-- row templates used by builder.js to add more rows -->
+<template id="tplSkillRow">
+  <div class="repeat-row" data-row>
+    <input type="text" name="skill_category___I__" maxlength="60" placeholder="Category, e.g. Frontend development">
+    <input type="text" name="skill_items___I__" maxlength="200" placeholder="Comma-separated: HTML, CSS, JavaScript">
+    <button type="button" class="row-remove" data-remove-row aria-label="Remove this skill group">✕</button>
+  </div>
+</template>
+
+<template id="tplProjectRow">
+  <div class="repeat-card" data-row>
+    <button type="button" class="row-remove" data-remove-row aria-label="Remove this project">✕</button>
+    <div class="repeat-card-grid">
+      <input type="text" name="project_name___I__" maxlength="60" placeholder="Project name">
+      <input type="text" name="project_icon___I__" maxlength="4" placeholder="Icon (emoji, optional)">
+    </div>
+    <textarea name="project_desc___I__" rows="2" maxlength="300" placeholder="What does it do?"></textarea>
+    <input type="text" name="project_tech___I__" maxlength="150" placeholder="Technologies, comma-separated: Python, Flask">
+    <div class="repeat-card-grid">
+      <input type="url" name="project_github___I__" maxlength="200" placeholder="GitHub URL (optional)">
+      <input type="url" name="project_live___I__" maxlength="200" placeholder="Live demo URL (optional)">
+    </div>
+  </div>
+</template>
+
+<template id="tplCertRow">
+  <div class="repeat-card" data-row>
+    <button type="button" class="row-remove" data-remove-row aria-label="Remove this certificate">✕</button>
+    <input type="text" name="cert_name___I__" maxlength="100" placeholder="Certificate name">
+    <div class="repeat-card-grid">
+      <input type="text" name="cert_issuer___I__" maxlength="100" placeholder="Issued by">
+      <input type="text" name="cert_tags___I__" maxlength="120" placeholder="Tags, comma-separated">
+    </div>
+    <textarea name="cert_detail___I__" rows="2" maxlength="300" placeholder="Short detail (optional)"></textarea>
+    <input type="file" name="cert_image___I__" accept=".jpg,.jpeg,.png,.webp">
+    <span class="build-hint">An image is required for the certificate to appear.</span>
+  </div>
+</template>
+
+<script src="{{ url_for('static', filename='js/builder.js') }}"></script>
 {% endblock %}

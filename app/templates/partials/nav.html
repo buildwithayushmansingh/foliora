@@ -8,7 +8,14 @@
       <a href="#featured">Featured portfolio</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
-      <a class="btn btn--sm" href="#coming-soon">Explore designs</a>
+           <a href="#contact">Contact</a>
+      {% if current_user %}
+      <a href="{{ url_for('main.ai_tech_build') }}">My portfolio</a>
+      <a href="{{ url_for('auth.logout') }}">Log out</a>
+      {% else %}
+      <a href="{{ url_for('auth.login') }}">Log in</a>
+      <a class="btn btn--sm" href="{{ url_for('auth.signup') }}">Sign up</a>
+      {% endif %}
     </nav>
   </div>
 </header>

@@ -1,14 +1,13 @@
-"""Phase 3: permanent storage for portfolios.
+"""Phase 3/4: permanent storage for portfolios and user accounts.
 
 Uses Python's built-in sqlite3 (no new dependency to install). One row per
-portfolio, keyed by a random token stored in the visitor's session cookie —
-there's no login yet (that's Phase 4), so this is what "theirs" means for
-now: whoever holds that browser's cookie.
+portfolio, keyed by an identity string — a random per-browser token before
+login, or "user:<id>" once someone has an account (see
+app.blueprints.main.routes._identity_key).
 
 The whole portfolio is kept as one JSON blob per row. That's a deliberate
-simplification for this phase — splitting skills/projects/certificates into
-their own relational tables is worth doing once real accounts and an admin
-view exist to justify it (Phase 4/5), not before.
+simplification — splitting skills/projects/certificates into their own
+relational tables is worth doing once there's an admin view to justify it.
 """
 import json
 import os
@@ -35,7 +34,7 @@ def close_db(_exc=None):
 
 
 def init_db(app):
-    """Creates the database file and table if they don't exist yet, and
+    """Creates the database file and tables if they don't exist yet, and
     registers the connection to close cleanly after every request."""
     os.makedirs(os.path.dirname(app.config["DATABASE_PATH"]), exist_ok=True)
     with app.app_context():
@@ -49,14 +48,20 @@ def init_db(app):
                 updated_at TEXT NOT NULL
             )
         """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        """)
         db.commit()
         close_db()
     app.teardown_appcontext(close_db)
 
 
 def get_portfolio(token):
-    """Returns the saved portfolio dict for this token, or None if this
-    visitor has never saved one (they'll fall back to the demo)."""
     row = get_db().execute(
         "SELECT data FROM portfolios WHERE token = ?", (token,)
     ).fetchone()
@@ -81,3 +86,26 @@ def delete_portfolio(token):
     db = get_db()
     db.execute("DELETE FROM portfolios WHERE token = ?", (token,))
     db.commit()
+
+
+# --- Phase 4: accounts ------------------------------------------------------
+
+def create_user(email, password_hash):
+    now = datetime.now(timezone.utc).isoformat()
+    db = get_db()
+    cur = db.execute(
+        "INSERT INTO users (email, password_hash, created_at) VALUES (?, ?, ?)",
+        (email, password_hash, now),
+    )
+    db.commit()
+    return cur.lastrowid
+
+
+def get_user_by_email(email):
+    row = get_db().execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    return dict(row) if row else None
+
+
+def get_user_by_id(user_id):
+    row = get_db().execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    return dict(row) if row else None

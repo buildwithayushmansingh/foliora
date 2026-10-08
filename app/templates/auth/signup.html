@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Sign up — {{ site.name }}{% endblock %}
+{% block content %}
+<section class="section build-section">
+  <div class="wrap build-wrap auth-wrap">
+    <span class="build-eyebrow">Create your account</span>
+    <h1 class="build-h1">Sign up</h1>
+    <p class="lead">Save your portfolio to an account so it's there whenever you come back — on any device.</p>
+
+    {% if error %}<p class="build-error">{{ error }}</p>{% endif %}
+
+    <form method="post" class="build-form">
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" required maxlength="120" value="{{ email }}" placeholder="you@example.com" autofocus>
+      </label>
+      <label class="field">
+        <span>Password <small>(at least 8 characters)</small></span>
+        <input type="password" name="password" required minlength="8" placeholder="••••••••">
+      </label>
+      <label class="field">
+        <span>Confirm password</span>
+        <input type="password" name="confirm" required minlength="8" placeholder="••••••••">
+      </label>
+      <div class="build-actions">
+        <button type="submit" class="btn">Create account →</button>
+      </div>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+  </div>
+</section>
+{% endblock %}

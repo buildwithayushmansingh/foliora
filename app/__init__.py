@@ -15,6 +15,7 @@ def create_app(config_object=None):
     if config_object is None:
         config_object = ProdConfig if os.getenv("FLASK_ENV") == "production" else DevConfig
     app.config.from_object(config_object)
+
     app.config.setdefault("DATABASE_PATH", os.path.join(app.instance_path, "foliora.db"))
     init_db(app)
 
@@ -25,6 +26,8 @@ def create_app(config_object=None):
 
     from app.blueprints.main import bp as main_bp
     app.register_blueprint(main_bp)
+    from app.blueprints.auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
 
     @app.context_processor
     def inject_site():
@@ -37,6 +40,13 @@ def create_app(config_object=None):
                 "linkedin": c["LINKEDIN_URL"],
             }
         }
+
+    @app.context_processor
+    def inject_current_user():
+        from flask import session
+        from app.db import get_user_by_id
+        user_id = session.get("user_id")
+        return {"current_user": get_user_by_id(user_id) if user_id else None}
 
     @app.after_request
     def security_headers(resp):
