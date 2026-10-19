@@ -8,9 +8,11 @@
       <a href="#featured">Featured portfolio</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
-           <a href="#contact">Contact</a>
       {% if current_user %}
-      <a href="{{ url_for('main.ai_tech_build') }}">My portfolio</a>
+      <a href="{{ url_for('main.ai_tech_dashboard') }}">My portfolio</a>
+      {% if current_user.is_admin %}
+      <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+      {% endif %}
       <a href="{{ url_for('auth.logout') }}">Log out</a>
       {% else %}
       <a href="{{ url_for('auth.login') }}">Log in</a>

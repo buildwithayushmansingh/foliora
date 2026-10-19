@@ -3891,3 +3891,112 @@ section[id] {
     font-size: .82rem;
     color: var(--muted)
 }
+
+/* ---------- Education / Experience timeline ---------- */
+.timeline {
+    position: relative;
+    max-width: 720px;
+    margin: 2.5rem auto 0;
+    padding-left: 28px
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--border)
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.8rem
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent)
+}
+
+.timeline-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.3rem 1.5rem
+}
+
+.timeline-period {
+    font-family: var(--font-mono);
+    font-size: .78rem;
+    color: var(--accent);
+    letter-spacing: .03em
+}
+
+.timeline-card h3 {
+    font-size: 1.05rem;
+    margin-top: .3rem;
+    color: var(--text)
+}
+
+.timeline-sub {
+    color: var(--muted);
+    font-size: .92rem;
+    margin-top: .15rem
+}
+
+.timeline-desc {
+    color: var(--muted);
+    font-size: .92rem;
+    margin-top: .6rem;
+    line-height: 1.6
+}
+
+/* ---------- Achievements ---------- */
+.achv-list {
+    list-style: none;
+    max-width: 720px;
+    margin: 2.5rem auto 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .9rem
+}
+
+.achv-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: .8rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.3rem;
+    color: var(--text);
+    font-size: .95rem;
+    line-height: 1.6
+}
+
+.achv-mark {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 700
+}

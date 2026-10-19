@@ -491,7 +491,69 @@
         </div>
     </section>
     {% endif %}
+    {% if portfolio.education %}
+    <section id="education">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">Education</span>
+                <h2>Academic background</h2>
+            </div>
+            <div class="timeline reveal-on-scroll">
+                {% for ed in portfolio.education %}
+                <div class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-period">{{ ed.year }}</span>
+                        <h3>{{ ed.degree }}</h3>
+                        <p class="timeline-sub">{{ ed.institution }}</p>
+                        {% if ed.description %}<p class="timeline-desc">{{ ed.description }}</p>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
 
+    {% if portfolio.experience %}
+    <section id="experience">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">Experience</span>
+                <h2>Where I've worked</h2>
+            </div>
+            <div class="timeline reveal-on-scroll">
+                {% for exp in portfolio.experience %}
+                <div class="timeline-item">
+                    <span class="timeline-dot"></span>
+                    <div class="timeline-card">
+                        <span class="timeline-period">{{ exp.duration }}</span>
+                        <h3>{{ exp.role }}</h3>
+                        <p class="timeline-sub">{{ exp.company }}</p>
+                        {% if exp.description %}<p class="timeline-desc">{{ exp.description }}</p>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if portfolio.achievements %}
+    <section id="achievements">
+        <div class="wrap">
+            <div class="section-head reveal-on-scroll">
+                <span class="eyebrow">Achievements</span>
+                <h2>Highlights along the way</h2>
+            </div>
+            <ul class="achv-list reveal-on-scroll">
+                {% for item in portfolio.achievements %}
+                <li><span class="achv-mark">✓</span>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+    {% endif %}
     {% set gh_handle = portfolio.social_links.github.rstrip('/').split('/')[-1]
     if portfolio.social_links.github
     else portfolio.username|default('dev', true) %}

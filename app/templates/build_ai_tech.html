@@ -132,7 +132,52 @@
         </div>
         <button type="button" class="btn btn--ghost btn--sm" id="addCertRow">+ Add certificate</button>
       </div>
+      <!-- ============ EDUCATION ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Education <small>(optional)</small></h2>
+        <div id="eduRows" class="repeat-rows repeat-rows--card">
+          {% for ed in portfolio.education %}
+          <div class="repeat-card" data-row>
+            <button type="button" class="row-remove" data-remove-row aria-label="Remove this education entry">✕</button>
+            <input type="text" name="edu_degree_{{ loop.index0 }}" maxlength="100" value="{{ ed.degree }}" placeholder="Degree, e.g. B.Tech Computer Science">
+            <div class="repeat-card-grid">
+              <input type="text" name="edu_institution_{{ loop.index0 }}" maxlength="120" value="{{ ed.institution }}" placeholder="Institution">
+              <input type="text" name="edu_year_{{ loop.index0 }}" maxlength="40" value="{{ ed.year }}" placeholder="Year, e.g. 2023–2027">
+            </div>
+            <textarea name="edu_desc_{{ loop.index0 }}" rows="2" maxlength="300" placeholder="Short detail (optional)">{{ ed.description }}</textarea>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="addEduRow">+ Add education</button>
+      </div>
 
+      <!-- ============ EXPERIENCE ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Experience <small>(optional)</small></h2>
+        <div id="expRows" class="repeat-rows repeat-rows--card">
+          {% for exp in portfolio.experience %}
+          <div class="repeat-card" data-row>
+            <button type="button" class="row-remove" data-remove-row aria-label="Remove this experience entry">✕</button>
+            <input type="text" name="exp_role_{{ loop.index0 }}" maxlength="100" value="{{ exp.role }}" placeholder="Role, e.g. Frontend Intern">
+            <div class="repeat-card-grid">
+              <input type="text" name="exp_company_{{ loop.index0 }}" maxlength="120" value="{{ exp.company }}" placeholder="Company">
+              <input type="text" name="exp_duration_{{ loop.index0 }}" maxlength="40" value="{{ exp.duration }}" placeholder="Duration, e.g. Jun–Aug 2026">
+            </div>
+            <textarea name="exp_desc_{{ loop.index0 }}" rows="2" maxlength="300" placeholder="What did you work on? (optional)">{{ exp.description }}</textarea>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="addExpRow">+ Add experience</button>
+      </div>
+
+      <!-- ============ ACHIEVEMENTS ============ -->
+      <div class="build-group">
+        <h2 class="build-h2">Achievements <small>(optional)</small></h2>
+        <label class="field">
+          <span>One per line</span>
+          <textarea name="achievements" rows="4" maxlength="1000" placeholder="e.g. Won 1st place at XYZ Hackathon 2026">{{ portfolio.achievements|join('\n') }}</textarea>
+        </label>
+      </div>
       <!-- ============ SOCIAL & CONTACT ============ -->
       <div class="build-group">
         <h2 class="build-h2">Social links &amp; contact <small>(all optional)</small></h2>
@@ -159,6 +204,7 @@
       <div class="build-actions build-actions--sticky">
         <button type="submit" class="btn">Save and preview →</button>
         {% if has_custom_data %}
+        <a href="{{ url_for('main.ai_tech_dashboard') }}" class="btn btn--ghost">Publish / dashboard →</a>
         <a href="{{ url_for('main.ai_tech_reset') }}" class="btn btn--ghost">Reset to demo data</a>
         {% endif %}
       </div>
@@ -204,6 +250,28 @@
     <span class="build-hint">An image is required for the certificate to appear.</span>
   </div>
 </template>
+<template id="tplEduRow">
+  <div class="repeat-card" data-row>
+    <button type="button" class="row-remove" data-remove-row aria-label="Remove this education entry">✕</button>
+    <input type="text" name="edu_degree___I__" maxlength="100" placeholder="Degree, e.g. B.Tech Computer Science">
+    <div class="repeat-card-grid">
+      <input type="text" name="edu_institution___I__" maxlength="120" placeholder="Institution">
+      <input type="text" name="edu_year___I__" maxlength="40" placeholder="Year, e.g. 2023–2027">
+    </div>
+    <textarea name="edu_desc___I__" rows="2" maxlength="300" placeholder="Short detail (optional)"></textarea>
+  </div>
+</template>
 
+<template id="tplExpRow">
+  <div class="repeat-card" data-row>
+    <button type="button" class="row-remove" data-remove-row aria-label="Remove this experience entry">✕</button>
+    <input type="text" name="exp_role___I__" maxlength="100" placeholder="Role, e.g. Frontend Intern">
+    <div class="repeat-card-grid">
+      <input type="text" name="exp_company___I__" maxlength="120" placeholder="Company">
+      <input type="text" name="exp_duration___I__" maxlength="40" placeholder="Duration, e.g. Jun–Aug 2026">
+    </div>
+    <textarea name="exp_desc___I__" rows="2" maxlength="300" placeholder="What did you work on? (optional)"></textarea>
+  </div>
+</template>
 <script src="{{ url_for('static', filename='js/builder.js') }}"></script>
 {% endblock %}

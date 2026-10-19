@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Admin — {{ site.name }}{% endblock %}
+{% block content %}
+<section class="section build-section">
+    <div class="wrap">
+        <span class="build-eyebrow">Admin</span>
+        <h1 class="build-h1">Overview</h1>
+
+        <div class="admin-stats">
+            <div class="admin-stat"><span class="admin-stat__n">{{ counts.users }}</span><span
+                    class="admin-stat__l">Accounts</span></div>
+            <div class="admin-stat"><span class="admin-stat__n">{{ counts.portfolios }}</span><span
+                    class="admin-stat__l">Portfolios (signed in)</span></div>
+            <div class="admin-stat"><span class="admin-stat__n">{{ counts.published }}</span><span
+                    class="admin-stat__l">Published</span></div>
+            <div class="admin-stat"><span class="admin-stat__n">{{ counts.anonymous_drafts }}</span><span
+                    class="admin-stat__l">Anonymous drafts</span></div>
+        </div>
+
+        <h2 class="admin-subhead">Accounts</h2>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Signed up</th>
+                        <th>Portfolio</th>
+                        <th>Public URL</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.email }}{% if u.is_admin %} <span class="admin-badge">admin</span>{% endif %}</td>
+                        <td>{{ u.created_at[:10] }}</td>
+                        <td>
+                            {% if u.portfolio_updated_at %}
+                            {% if u.is_published %}<span
+                                class="dash-status dash-status--live admin-badge-inline">LIVE</span>{% else %}<span
+                                class="dash-status dash-status--draft admin-badge-inline">DRAFT</span>{% endif %}
+                            {% else %}
+                            <span class="admin-muted">— none yet —</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_published and u.slug %}<a
+                                href="{{ url_for('main.public_portfolio', slug=u.slug) }}" target="_blank"
+                                rel="noopener">/u/{{ u.slug }}</a>{% else %}<span class="admin-muted">—</span>{% endif
+                            %}
+                        </td>
+                        <td>
+                            {% if not u.is_admin %}
+                            <form method="post" action="{{ url_for('admin.delete_user', user_id=u.id) }}"
+                                onsubmit="return confirm('Delete this account and its portfolio? This can\'t be undone.');">
+                                <button type="submit" class="admin-link-danger">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

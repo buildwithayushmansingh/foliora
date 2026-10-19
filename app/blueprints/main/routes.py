@@ -8,7 +8,16 @@ from datetime import date
 
 from flask import abort, current_app, redirect, render_template, request, send_from_directory, session, url_for
 
-from app.db import delete_portfolio, get_portfolio, save_portfolio
+from app.db import (
+    delete_portfolio,
+    get_portfolio,
+    get_portfolio_row,
+    get_published_by_slug,
+    is_slug_taken,
+    publish_portfolio,
+    save_portfolio,
+    unpublish_portfolio,
+)
 
 from app.data import FEATURED_PORTFOLIO, HOW_IT_WORKS, PROBLEMS, UPCOMING_DESIGNS
 from app.blueprints.main import bp
@@ -37,7 +46,33 @@ def _identity_key():
         session[TOKEN_KEY] = uuid.uuid4().hex
     return session[TOKEN_KEY]
 
+# --- Phase 5: publish, with a stable public URL (/u/<slug>) ---------------
+SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$")
+RESERVED_SLUGS = {
+    "static", "templates", "portfolio-templates", "u", "build", "demo", "reset",
+    "publish", "unpublish", "dashboard", "login", "logout", "signup", "about",
+    "contact", "admin", "api", "www", "mail", "ftp", "root", "support", "help",
+    "home", "index", "app", "config", "test", "null", "undefined", "favicon.ico",
+}
 
+
+def _slugify(raw):
+    s = raw.strip().lower()
+    s = re.sub(r"[^a-z0-9-]+", "-", s)
+    s = re.sub(r"-{2,}", "-", s).strip("-")
+    return s[:30]
+
+
+def _validate_slug(slug, token):
+    if not slug:
+        return "Enter a URL."
+    if not SLUG_RE.match(slug):
+        return "Use 3–30 letters, numbers and hyphens only, starting and ending with a letter or number."
+    if slug in RESERVED_SLUGS:
+        return "That URL is reserved — try another."
+    if is_slug_taken(slug, exclude_token=token):
+        return "That URL is already taken — try another."
+    return None
 # --- image uploads (profile photo, certificate images) -----------------------
 UPLOAD_DIRNAME = "uploads"
 ALLOWED_IMAGE_EXT = {"png", "jpg", "jpeg", "webp"}
@@ -137,7 +172,38 @@ def _parse_certificates(form, files):
         })
     return certs
 
+def _parse_education(form):
+    rows = []
+    for i in _row_indices(form, "edu_degree"):
+        degree = form.get(f"edu_degree_{i}", "").strip()
+        if not degree:
+            continue
+        rows.append({
+            "degree": degree,
+            "institution": form.get(f"edu_institution_{i}", "").strip(),
+            "year": form.get(f"edu_year_{i}", "").strip(),
+            "description": form.get(f"edu_desc_{i}", "").strip(),
+        })
+    return rows
 
+
+def _parse_experience(form):
+    rows = []
+    for i in _row_indices(form, "exp_role"):
+        role = form.get(f"exp_role_{i}", "").strip()
+        if not role:
+            continue
+        rows.append({
+            "role": role,
+            "company": form.get(f"exp_company_{i}", "").strip(),
+            "duration": form.get(f"exp_duration_{i}", "").strip(),
+            "description": form.get(f"exp_desc_{i}", "").strip(),
+        })
+    return rows
+
+
+def _parse_achievements(form):
+    return [a.strip() for a in form.get("achievements", "").split("\n") if a.strip()]
 def _initials(name):
     parts = [p for p in name.split() if p]
     letters = "".join(p[0] for p in parts[:2])
@@ -163,6 +229,12 @@ def _available_sections(portfolio):
         sections.append(("projects", "Projects"))
     if portfolio.get("certificates"):
         sections.append(("certificates", "Certificates"))
+    if portfolio.get("education"):
+        sections.append(("education", "Education"))
+    if portfolio.get("experience"):
+        sections.append(("experience", "Experience"))
+    if portfolio.get("achievements"):
+        sections.append(("achievements", "Achievements"))
     if portfolio.get("name"):
         sections.append(("id-card", "Developer ID"))
     if portfolio.get("github", {}).get("activity_enabled") and portfolio.get("github", {}).get("username"):
@@ -190,6 +262,8 @@ def _with_safe_defaults(portfolio):
     safe.setdefault("skills", [])
     safe.setdefault("projects", [])
     safe.setdefault("certificates", [])
+    safe.setdefault("education", [])
+    safe.setdefault("experience", [])
     safe.setdefault("achievements", [])
     return safe
 
@@ -201,7 +275,7 @@ def _blank_portfolio():
         "name": "", "username": "", "title": "", "tagline": "", "about": "",
         "location": "", "email": "", "status": "", "profile_image": "",
         "stats": [], "focus": [], "social_links": {}, "skills": [],
-        "projects": [], "certificates": [], "achievements": [],
+        "projects": [], "certificates": [], "education": [], "experience": [], "achievements": [],
         "github": {"username": "", "profile_url": "", "activity_enabled": False},
         "contact": {"email": "", "message_enabled": False},
         "resume_url": "",
@@ -295,6 +369,9 @@ def ai_tech_build():
         merged["skills"] = _parse_skills(form)
         merged["projects"] = _parse_projects(form)
         merged["certificates"] = _parse_certificates(form, files)
+        merged["education"] = _parse_education(form)
+        merged["experience"] = _parse_experience(form)
+        merged["achievements"] = _parse_achievements(form)
 
         # "focus" (About panel) and the old hero stats are personal to the
         # original demo (GNIOT, 2nd year...) with no form field of their own
@@ -346,7 +423,48 @@ def ai_tech_demo():
     portfolio = get_portfolio(token) or _load_demo_portfolio()
     return render_portfolio("ai-tech", portfolio)
 
+@bp.route("/templates/ai-tech/dashboard")
+def ai_tech_dashboard():
+    token = _identity_key()
+    row = get_portfolio_row(token)
+    if row is None:
+        return redirect(url_for("main.ai_tech_build"))
+    return render_template("dashboard.html", row=row)
 
+
+@bp.route("/templates/ai-tech/publish", methods=["GET", "POST"])
+def ai_tech_publish():
+    token = _identity_key()
+    row = get_portfolio_row(token)
+    if row is None:
+        return redirect(url_for("main.ai_tech_build"))
+
+    if request.method == "POST":
+        slug = _slugify(request.form.get("slug", ""))
+        error = _validate_slug(slug, token)
+        if error:
+            return render_template("publish_ai_tech.html", row=row, slug=slug, error=error)
+        publish_portfolio(token, slug, "ai-tech", json.loads(row["data"]))
+        return redirect(url_for("main.ai_tech_dashboard"))
+
+    suggested = row["slug"] or _slugify(json.loads(row["data"]).get("name", ""))
+    return render_template("publish_ai_tech.html", row=row, slug=suggested, error=None)
+
+
+@bp.route("/templates/ai-tech/unpublish")
+def ai_tech_unpublish():
+    token = _identity_key()
+    unpublish_portfolio(token)
+    return redirect(url_for("main.ai_tech_dashboard"))
+
+
+@bp.route("/u/<slug>")
+def public_portfolio(slug):
+    found = get_published_by_slug(slug)
+    if found is None:
+        abort(404)
+    template_key, data = found
+    return render_portfolio(template_key, data)
 @bp.route("/")
 def home():
     featured = dict(FEATURED_PORTFOLIO)

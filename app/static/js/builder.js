@@ -28,6 +28,8 @@
     document.getElementById("addSkillRow")?.addEventListener("click", () => addRow("skillsRows", "tplSkillRow"));
     document.getElementById("addProjectRow")?.addEventListener("click", () => addRow("projectsRows", "tplProjectRow"));
     document.getElementById("addCertRow")?.addEventListener("click", () => addRow("certsRows", "tplCertRow"));
+    document.getElementById("addEduRow")?.addEventListener("click", () => addRow("eduRows", "tplEduRow"));
+    document.getElementById("addExpRow")?.addEventListener("click", () => addRow("expRows", "tplExpRow"));
 
     // Event delegation: works for rows present on load AND rows added later.
     form.addEventListener("click", (e) => {

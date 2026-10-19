@@ -16,7 +16,7 @@ class Config:
     LINKEDIN_URL = os.getenv("LINKEDIN_URL") or "#"
     MAX_CONTENT_LENGTH = 20 * 1024 * 1024  # 20 MB
     PERMANENT_SESSION_LIFETIME = timedelta(days=365)
-
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "").strip().lower()
 class DevConfig(Config):
     DEBUG = True
 

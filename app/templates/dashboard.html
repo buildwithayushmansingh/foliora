@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Your portfolio — {{ site.name }}{% endblock %}
+{% block content %}
+<section class="section build-section">
+  <div class="wrap build-wrap">
+    <span class="build-eyebrow">AI & Tech template</span>
+    <h1 class="build-h1">Your portfolio</h1>
+
+    <div class="dash-status {{ 'dash-status--live' if row.is_published else 'dash-status--draft' }}">
+      <span class="dash-dot"></span>
+      {% if row.is_published %}LIVE{% else %}DRAFT — not published yet{% endif %}
+    </div>
+
+    {% if row.is_published %}
+    <div class="dash-url">
+      <a href="{{ url_for('main.public_portfolio', slug=row.slug) }}" target="_blank" rel="noopener">{{ request.host }}/u/{{ row.slug }}</a>
+    </div>
+    {% endif %}
+
+    <div class="build-actions">
+      <a href="{{ url_for('main.ai_tech_build') }}" class="btn">Edit portfolio</a>
+      {% if row.is_published %}
+      <a href="{{ url_for('main.public_portfolio', slug=row.slug) }}" target="_blank" rel="noopener" class="btn btn--ghost">View live page</a>
+      <a href="{{ url_for('main.ai_tech_publish') }}" class="btn btn--ghost">Update published version</a>
+      <a href="{{ url_for('main.ai_tech_unpublish') }}" class="btn btn--ghost">Unpublish</a>
+      {% else %}
+      <a href="{{ url_for('main.ai_tech_publish') }}" class="btn btn--ghost">Publish →</a>
+      {% endif %}
+    </div>
+
+    {% if row.is_published %}
+    <p class="build-hint">Editing your portfolio only changes the draft — click "Update published version" to push your edits live.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

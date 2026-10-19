@@ -1,10 +1,10 @@
 import re
 
-from flask import redirect, render_template, request, session, url_for
+from flask import current_app, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.blueprints.auth import bp
-from app.db import create_user, get_portfolio, get_user_by_email, save_portfolio
+from app.db import create_user, get_portfolio, get_user_by_email, get_user_by_id, save_portfolio, set_user_admin
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -12,7 +12,14 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 def _anon_token():
     return session.get("builder_token")
 
-
+def _sync_admin_flag(user):
+    """Phase 8: whoever's email matches config.ADMIN_EMAIL is the admin —
+    set once per login/signup, so changing ADMIN_EMAIL in .env and logging
+    in again moves admin access to a different account if needed."""
+    admin_email = current_app.config.get("ADMIN_EMAIL")
+    should_be_admin = bool(admin_email) and user["email"] == admin_email
+    if bool(user["is_admin"]) != should_be_admin:
+        set_user_admin(user["id"], should_be_admin)
 def _claim_anonymous_portfolio(user_id):
     anon_token = _anon_token()
     if not anon_token:
@@ -47,6 +54,7 @@ def signup():
 
         anon_token = _anon_token()
         user_id = create_user(email, generate_password_hash(password))
+        _sync_admin_flag(get_user_by_id(user_id))
         session.clear()
         session["user_id"] = user_id
         if anon_token:
@@ -67,6 +75,7 @@ def login():
         if user is None or not check_password_hash(user["password_hash"], password):
             return render_template("auth/login.html", error="Incorrect email or password.", email=email)
 
+        _sync_admin_flag(user)
         anon_token = _anon_token()
         session.clear()
         session["user_id"] = user["id"]
