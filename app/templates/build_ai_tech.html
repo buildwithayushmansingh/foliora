@@ -203,6 +203,8 @@
 
       <div class="build-actions build-actions--sticky">
         <button type="submit" class="btn">Save and preview →</button>
+        <button type="button" class="btn btn--ghost" id="fillSampleBtn">Fill sample data</button>
+        <button type="button" class="btn btn--ghost" id="fillSampleSaveBtn">Fill sample &amp; preview →</button>
         {% if has_custom_data %}
         <a href="{{ url_for('main.ai_tech_dashboard') }}" class="btn btn--ghost">Publish / dashboard →</a>
         <a href="{{ url_for('main.ai_tech_reset') }}" class="btn btn--ghost">Reset to demo data</a>
@@ -273,5 +275,4 @@
     <textarea name="exp_desc___I__" rows="2" maxlength="300" placeholder="What did you work on? (optional)"></textarea>
   </div>
 </template>
-<script src="{{ url_for('static', filename='js/builder.js') }}"></script>
 {% endblock %}
