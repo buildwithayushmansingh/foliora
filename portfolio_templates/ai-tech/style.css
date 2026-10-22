@@ -4000,3 +4000,38 @@ section[id] {
     font-size: .75rem;
     font-weight: 700
 }
+
+/* ---------- Multi-page navigation: active section ---------- */
+.sections-list a.is-active {
+    background: var(--accent-soft);
+    padding-left: 18px;
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.sections-list a.is-active .sections-arrow {
+    opacity: 0.4;
+}
+
+.nav-current {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--accent-soft);
+}
+
+.sections-trigger[aria-expanded="true"] {
+    color: var(--accent);
+}
+
+@media (max-width:880px) {
+    .nav-current {
+        display: none;
+    }
+}

@@ -373,11 +373,10 @@ if (!isTouch) {
         updateThemeLabel(theme);
     }
 
-    // sections actually present on this page (from data-driven conditional rendering)
+    // sections this portfolio actually has (sent by the server as window.PORTFOLIO_NAV)
+    const NAV = window.PORTFOLIO_NAV || { view: 'home', urls: {} };
     function availableSections() {
-        return Array.from(document.querySelectorAll('main [id], body > section[id]'))
-            .map(el => el.id)
-            .filter((v, i, a) => a.indexOf(v) === i);
+        return Object.keys(NAV.urls || {});
     }
 
     const commands = {
@@ -449,11 +448,10 @@ if (!isTouch) {
         if (cmd === 'open' && parts[1]) {
             const target = parts[1].toLowerCase();
             const sections = availableSections();
-            const match = target === 'home' ? 'top' : target;
+            const match = target;
             if (sections.includes(match)) {
                 printLine('Opening ' + target + '...');
-                const el = document.getElementById(match);
-                if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 150);
+                setTimeout(() => { window.location.href = NAV.urls[match]; }, 150);
             } else {
                 printLine("No section named '" + target + "' — try " + sections.join(', '), 'term-error');
             }

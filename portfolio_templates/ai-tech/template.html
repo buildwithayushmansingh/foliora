@@ -109,7 +109,7 @@
         </div>
     </div>
 
-    <!-- sections menu — opens with the grid icon in the top bar; anchors to sections on this page -->
+    <!-- sections menu — opens with the grid icon in the top bar; each item opens that section as its own page -->
     <div class="sections-overlay" id="sectionsOverlay" hidden>
         <div class="sections-panel">
             <div class="sections-panel-head">
@@ -117,10 +117,13 @@
                 <button class="sections-close" id="sectionsClose" aria-label="Close sections menu">✕</button>
             </div>
             <ul class="sections-list">
-                <li><a href="#top" data-cursor-text="Open"><span>Home</span><span class="sections-arrow">→</span></a>
+                <li><a href="{{ section_url('home') }}" data-cursor-text="Open"
+                        class="{{ 'is-active' if view == 'home' }}" {% if view=='home' %}aria-current="page" {% endif
+                        %}><span>Home</span><span class="sections-arrow">→</span></a>
                 </li>
                 {% for slug, label in available_sections %}
-                <li><a href="#{{ slug }}" data-cursor-text="Open"><span>{{ label }}</span><span
+                <li><a href="{{ section_url(slug) }}" data-cursor-text="Open" class="{{ 'is-active' if view == slug }}"
+                        {% if view==slug %}aria-current="page" {% endif %}><span>{{ label }}</span><span
                             class="sections-arrow">→</span></a></li>
                 {% endfor %}
             </ul>
@@ -128,9 +131,11 @@
     </div>
 
     <header class="top-bar">
-        <div class="nav-mark"><a href="#top" data-cursor-text="Home"><span class="dot"></span>{{ portfolio.name }}</a>
+        <div class="nav-mark"><a href="{{ section_url('home') }}" data-cursor-text="Home"><span class="dot"></span>{{
+                portfolio.name }}</a>
         </div>
         <div class="nav-right">
+            {% if view != 'home' %}<span class="nav-current" aria-hidden="true">{{ current_label }}</span>{% endif %}
             <button class="sections-trigger" id="sectionsTrigger" data-cursor-text="Sections"
                 aria-label="Open sections menu" aria-haspopup="true" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -197,6 +202,7 @@
         </div>
     </header>
 
+    {% if view == 'home' %}
     <section class="hero" id="top">
         <div class="hero-scanlines"></div>
         <div class="hero-bg-layer" id="heroBgLayer" aria-hidden="true">
@@ -268,7 +274,8 @@
                 {% if portfolio.stats %}
                 <div class="hero-stats reveal" style="animation-delay:0.44s">
                     {% for stat in portfolio.stats %}
-                    <a href="#{{ stat.link|default('about', true) }}" class="hud-stat" data-cursor-text="Open">
+                    <a href="{{ section_url(stat.link|default('about', true)) }}" class="hud-stat"
+                        data-cursor-text="Open">
                         {% if stat.counter %}
                         <div class="stat-num"><span data-count="{{ stat.value }}">0</span>{% if stat.plus %}<span
                                 class="plus">+</span>{% endif %}</div>
@@ -313,8 +320,9 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
-    {% if portfolio.about %}
+    {% if portfolio.about and view == 'about' %}
     <section id="about">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -338,7 +346,7 @@
     </section>
     {% endif %}
 
-    {% if portfolio.skills %}
+    {% if portfolio.skills and view == 'skills' %}
     <section id="skills">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -383,7 +391,7 @@
     </section>
     {% endif %}
 
-    {% if portfolio.projects %}
+    {% if portfolio.projects and view == 'projects' %}
     <section id="projects">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -435,7 +443,7 @@
     </section>
     {% endif %}
 
-    {% if portfolio.certificates %}
+    {% if portfolio.certificates and view == 'certificates' %}
     <section id="certificates">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -491,7 +499,7 @@
         </div>
     </section>
     {% endif %}
-    {% if portfolio.education %}
+    {% if portfolio.education and view == 'education' %}
     <section id="education">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -515,7 +523,7 @@
     </section>
     {% endif %}
 
-    {% if portfolio.experience %}
+    {% if portfolio.experience and view == 'experience' %}
     <section id="experience">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -539,7 +547,7 @@
     </section>
     {% endif %}
 
-    {% if portfolio.achievements %}
+    {% if portfolio.achievements and view == 'achievements' %}
     <section id="achievements">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -558,7 +566,7 @@
     if portfolio.social_links.github
     else portfolio.username|default('dev', true) %}
 
-    {% if portfolio.name %}
+    {% if portfolio.name and view == 'id-card' %}
     <section id="id-card">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -610,7 +618,7 @@
         </div>
     </section>
     {% endif %}
-    {% if portfolio.github and portfolio.github.activity_enabled and portfolio.github.username %}
+    {% if portfolio.github and portfolio.github.activity_enabled and portfolio.github.username and view == 'github' %}
     <section id="github" data-gh-username="{{ portfolio.github.username }}">
         <div class="wrap">
             <div class="section-head reveal-on-scroll">
@@ -654,13 +662,13 @@
         </div>
     </section>
     {% endif %}
-    {% if portfolio.contact.email
+    {% if view == 'contact' and (portfolio.contact.email
     or portfolio.email
     or portfolio.social_links.github
     or portfolio.social_links.linkedin
     or portfolio.social_links.instagram
     or portfolio.social_links.twitter
-    or portfolio.social_links.website %}
+    or portfolio.social_links.website) %}
     <section id="contact">
         <div class="wrap reveal-on-scroll">
             <div class="contact-container">
@@ -762,6 +770,8 @@
         // Portfolio data, safe for client-side use (no secrets) — read by script.js
         // for the terminal, GitHub widget and other data-driven interactions.
         window.PORTFOLIO = {{ portfolio | tojson }};
+        // Which view is open and where every available section lives — read by script.js.
+        window.PORTFOLIO_NAV = {{ { 'view': view, 'urls': nav_urls } | tojson }};
     </script>
     <script src="{{ url_for('main.template_asset', template_key='ai-tech', filename='script.js') }}"></script>
 </body>

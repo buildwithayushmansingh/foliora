@@ -294,17 +294,50 @@ def _builder_base(token):
     return _load_demo_portfolio()
 
 
-def render_portfolio(template_key, portfolio):
+# Every section name a template can show as its own page.
+KNOWN_SECTIONS = {
+    "about", "skills", "projects", "certificates", "education",
+    "experience", "achievements", "id-card", "github", "contact",
+}
+
+
+def render_portfolio(template_key, portfolio, section="home", endpoint="main.ai_tech_demo", **url_kwargs):
+    """Renders ONE view of a portfolio: the home/hero page, or a single
+    section as its own page (like the original portfolio's separate routes).
+    `endpoint` + `url_kwargs` say where this portfolio lives, so the menu can
+    build /u/<slug>/<section> for public pages and
+    /templates/ai-tech/demo/<section> for the builder preview."""
     if template_key not in TEMPLATE_REGISTRY:
         abort(404)
     portfolio = _with_safe_defaults(portfolio)
+    sections = _available_sections(portfolio)
+    labels = dict(sections)
+
+    def section_url(slug):
+        if slug == "home":
+            return url_for(endpoint, **url_kwargs)
+        return url_for(endpoint, section=slug, **url_kwargs)
+
+    if section != "home" and section not in labels:
+        if section in KNOWN_SECTIONS:
+            # a real section this person just hasn't filled in -> back to home
+            return redirect(section_url("home"))
+        abort(404)
+
+    nav_urls = {"home": section_url("home")}
+    nav_urls.update({slug: section_url(slug) for slug, _label in sections})
+
     return render_template(
         f"{template_key}/template.html",
         portfolio=portfolio,
         bg_tags=_background_tags(portfolio),
-        available_sections=_available_sections(portfolio),
+        available_sections=sections,
         initials=_initials(portfolio.get("name", "?")),
         current_year=date.today().year,
+        view=section,
+        current_label=labels.get(section, "Home"),
+        section_url=section_url,
+        nav_urls=nav_urls,
     )
 
 
@@ -366,6 +399,14 @@ def ai_tech_build():
             "activity_enabled": bool(github_username),
         }
 
+        # The demo data carries the original owner's handle; never let it leak
+        # into someone else's terminal prompt / ID card.
+        merged["username"] = (
+            github_username
+            or re.sub(r"[^a-z0-9]+", "", merged["name"].lower())
+            or "dev"
+        )
+
         merged["skills"] = _parse_skills(form)
         merged["projects"] = _parse_projects(form)
         merged["certificates"] = _parse_certificates(form, files)
@@ -417,11 +458,12 @@ def ai_tech_reset():
     return redirect(url_for("main.ai_tech_build"))
 
 
-@bp.route("/templates/ai-tech/demo")
-def ai_tech_demo():
+@bp.route("/templates/ai-tech/demo", defaults={"section": "home"})
+@bp.route("/templates/ai-tech/demo/<section>")
+def ai_tech_demo(section):
     token = _identity_key()
     portfolio = get_portfolio(token) or _load_demo_portfolio()
-    return render_portfolio("ai-tech", portfolio)
+    return render_portfolio("ai-tech", portfolio, section=section, endpoint="main.ai_tech_demo")
 
 @bp.route("/templates/ai-tech/dashboard")
 def ai_tech_dashboard():
@@ -458,13 +500,15 @@ def ai_tech_unpublish():
     return redirect(url_for("main.ai_tech_dashboard"))
 
 
-@bp.route("/u/<slug>")
-def public_portfolio(slug):
+@bp.route("/u/<slug>", defaults={"section": "home"})
+@bp.route("/u/<slug>/<section>")
+def public_portfolio(slug, section):
     found = get_published_by_slug(slug)
     if found is None:
         abort(404)
     template_key, data = found
-    return render_portfolio(template_key, data)
+    return render_portfolio(template_key, data, section=section,
+                            endpoint="main.public_portfolio", slug=slug)
 @bp.route("/")
 def home():
     featured = dict(FEATURED_PORTFOLIO)
