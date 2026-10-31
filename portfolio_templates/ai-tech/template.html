@@ -118,12 +118,14 @@
             </div>
             <ul class="sections-list">
                 <li><a href="{{ section_url('home') }}" data-cursor-text="Open"
-                        class="{{ 'is-active' if view == 'home' }}" {% if view=='home' %}aria-current="page" {% endif
-                        %}><span>Home</span><span class="sections-arrow">→</span></a>
+                        class="{{ 'is-active' if view == 'home' }}"
+                        {% if view == 'home' %}aria-current="page"{% endif %}><span>Home</span><span
+                            class="sections-arrow">→</span></a>
                 </li>
                 {% for slug, label in available_sections %}
-                <li><a href="{{ section_url(slug) }}" data-cursor-text="Open" class="{{ 'is-active' if view == slug }}"
-                        {% if view==slug %}aria-current="page" {% endif %}><span>{{ label }}</span><span
+                <li><a href="{{ section_url(slug) }}" data-cursor-text="Open"
+                        class="{{ 'is-active' if view == slug }}"
+                        {% if view == slug %}aria-current="page"{% endif %}><span>{{ label }}</span><span
                             class="sections-arrow">→</span></a></li>
                 {% endfor %}
             </ul>
@@ -131,8 +133,7 @@
     </div>
 
     <header class="top-bar">
-        <div class="nav-mark"><a href="{{ section_url('home') }}" data-cursor-text="Home"><span class="dot"></span>{{
-                portfolio.name }}</a>
+        <div class="nav-mark"><a href="{{ section_url('home') }}" data-cursor-text="Home"><span class="dot"></span>{{ portfolio.name }}</a>
         </div>
         <div class="nav-right">
             {% if view != 'home' %}<span class="nav-current" aria-hidden="true">{{ current_label }}</span>{% endif %}
@@ -274,8 +275,7 @@
                 {% if portfolio.stats %}
                 <div class="hero-stats reveal" style="animation-delay:0.44s">
                     {% for stat in portfolio.stats %}
-                    <a href="{{ section_url(stat.link|default('about', true)) }}" class="hud-stat"
-                        data-cursor-text="Open">
+                    <a href="{{ section_url(stat.link|default('about', true)) }}" class="hud-stat" data-cursor-text="Open">
                         {% if stat.counter %}
                         <div class="stat-num"><span data-count="{{ stat.value }}">0</span>{% if stat.plus %}<span
                                 class="plus">+</span>{% endif %}</div>
@@ -771,7 +771,7 @@
         // for the terminal, GitHub widget and other data-driven interactions.
         window.PORTFOLIO = {{ portfolio | tojson }};
         // Which view is open and where every available section lives — read by script.js.
-        window.PORTFOLIO_NAV = {{ { 'view': view, 'urls': nav_urls } | tojson }};
+        window.PORTFOLIO_NAV = {{ {'view': view, 'urls': nav_urls} | tojson }};
     </script>
     <script src="{{ url_for('main.template_asset', template_key='ai-tech', filename='script.js') }}"></script>
 </body>
